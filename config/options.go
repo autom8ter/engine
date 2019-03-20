@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/handlers"
 	"github.com/autom8ter/engine/plugin"
@@ -24,9 +25,12 @@ func (c *Config) With(opts []Option) *Config {
 }
 
 // WithServers returns an Option that sets gRPC service server implementation(s).
-func WithPlugins(svrs ...driver.Plugin) Option {
+func WithGoPlugins(svrs ...driver.Plugin) Option {
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, svrs...)
+		if len(c.Plugins) == 0 {
+			log.Fatal(errors.New("zero valid plugins registered"))
+		}
 	}
 }
 
@@ -163,16 +167,12 @@ func WithSwaggerFile(path string) Option {
 	}
 }
 
-func WithPluginLoaders(loaders ...plugin.PluginLoader) Option {
-	viper.Set("plugins", loaders)
+func WithPlugins() Option {
 	return func(config *Config) {
-		for _, l := range loaders {
-			if l.AsPlugin() != nil {
-				config.Plugins = append(config.Plugins, l.AsPlugin())
-			}
-		}
+		config.Plugins = append(config.Plugins, plugin.LoadPlugins()...)
 		if len(config.Plugins) == 0 {
-			log.Fatal(errors.New("zero valid plugins registered"))
+			errStr := fmt.Sprintf("zero valid plugins registered. plugin files: %s", plugin.Files())
+			log.Fatal(errors.New(errStr))
 		}
 	}
 }

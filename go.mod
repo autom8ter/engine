@@ -10,7 +10,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.8.5
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.8.1
 	github.com/soheilhy/cmux v0.1.4
 	github.com/spf13/cobra v0.0.3
@@ -21,4 +21,5 @@ require (
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
 	google.golang.org/genproto v0.0.0-20180817151627-c66870c02cf8
 	google.golang.org/grpc v1.19.0
+	honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099
 )

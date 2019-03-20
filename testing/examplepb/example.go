@@ -1,3 +1,5 @@
+//+build
+
 package main
 
 import (
@@ -7,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var ExamplePb  Example
+var Plugin  Example
 
 type Example struct {
 }
