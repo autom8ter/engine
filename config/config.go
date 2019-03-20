@@ -204,6 +204,10 @@ func Settings() map[string]interface{} {
 	return viper.AllSettings()
 }
 
+func SetEnvPrefix(prefix string) {
+	viper.SetEnvPrefix(prefix)
+}
+
 func BindFlags(cmd *cobra.Command) {
 	_ = viper.BindPFlags(cmd.PersistentFlags())
 	_ = viper.BindPFlags(cmd.Flags())
