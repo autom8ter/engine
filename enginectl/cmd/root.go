@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/autom8ter/engine/plugin"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -41,11 +42,14 @@ Download:
 go get github.com/autom8ter/engine/enginectl
 ----------------------------------------------------------------------------
 Expected Plugin Path:
-%s 
+$HOME/.plugins
 ----------------------------------------------------------------------------
-Plugins Found:
+Expected Plugin Export Name:
+Plugin
+----------------------------------------------------------------------------
+Plugins Files Found:
 %s
-`, PluginPath(), PluginsFound()),
+`, plugin.Files()),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

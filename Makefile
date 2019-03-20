@@ -6,6 +6,16 @@ help:	## show this help
 check:	## go format ./..., go vet ./..., go install ./..., git add ., git commit -m "check"
 	@go fmt ./...
 	@go vet ./...
+	@go test ./...
 	@go install ./...
 	@git add .
 	@git commit -m "check"
+
+build:
+	docker build -t enginectl .
+
+run:
+	docker run --name enginectl -t -d enginectl
+
+prune:
+	docker container prune

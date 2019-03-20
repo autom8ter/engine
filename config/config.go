@@ -2,10 +2,10 @@ package config
 
 import (
 	"crypto/tls"
-	"fmt"
 	"github.com/autom8ter/engine/driver"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc/grpclog"
 	"net"
 	"net/http"
 	"os"
@@ -21,7 +21,6 @@ import (
 )
 
 func init() {
-	fmt.Println("loading configuration settings with defaults")
 	viper.AutomaticEnv()
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("config")
@@ -48,9 +47,9 @@ func init() {
 		}
 	}
 	if err := viper.ReadInConfig(); err != nil {
-		log.Println(err.Error())
+		grpclog.Infoln(err.Error())
 	} else {
-		fmt.Printf("using config file: %s\n", viper.ConfigFileUsed())
+		grpclog.Infof("using config file: %s\n", viper.ConfigFileUsed())
 	}
 }
 

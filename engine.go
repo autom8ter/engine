@@ -2,7 +2,6 @@ package engine
 
 import (
 	"context"
-	"fmt"
 	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/listeners"
@@ -97,7 +96,7 @@ func (e *Engine) Serve() error {
 	// Start servers
 	eg, ctx := errgroup.WithContext(context.Background())
 	ctx, e.cancelFunc = context.WithCancel(ctx)
-	fmt.Println(fmt.Sprintf("registered %v plugin(s)", len(e.cfg.Plugins)))
+	grpclog.Infof("total registered plugin(s): %v\n", len(e.cfg.Plugins))
 	if internalLis != nil {
 		eg.Go(func() error { return grpcServer.Serve(internalLis) })
 	}

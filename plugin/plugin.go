@@ -1,15 +1,17 @@
 package plugin
 
 import (
-	"errors"
 	"fmt"
+	"github.com/autom8ter/engine/bash"
 	"github.com/autom8ter/engine/driver"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc/grpclog"
 	"log"
 	"os"
 	"path/filepath"
 	"plugin"
+	"strings"
 )
 
 func init() {
@@ -18,9 +20,8 @@ func init() {
 	if err != nil {
 		home = os.Getenv("HOME")
 	}
-	fmt.Println("registered home directory: "+home)
-	pluginPath=home+"/.plugins"
-	fmt.Println("registered plugin path: "+pluginPath)
+	pluginPath = home + "/.plugins"
+	grpclog.Infof("registered plugin path: %s\n", pluginPath)
 }
 
 var pluginPath string
@@ -48,10 +49,10 @@ func (p PluginLoader) AsPlugin() driver.Plugin {
 	var myPlugin driver.Plugin
 	myPlugin, ok := sym.(driver.Plugin)
 	if !ok {
-		log.Fatalln(errors.New(fmt.Sprintf("provided plugin: %T does not satisfy Plugin interface", sym)))
+		grpclog.Fatalf("provided plugin: %T does not satisfy Plugin interface\n", sym)
 		return nil
 	}
-	fmt.Println(fmt.Sprintf("registered plugin: %T", sym))
+	grpclog.Infof("registered plugin: %T\n", sym)
 	return myPlugin
 }
 
@@ -78,4 +79,15 @@ func LoadPlugins() []driver.Plugin {
 	}
 	viper.Set("plugins", plugs)
 	return plugs
+}
+
+func Build(file string) ([]byte, error) {
+	return bash.Bash(GetScript(file))
+}
+
+func GetScript(file string) string {
+	_, f := filepath.Split(file)
+	fileStrip := strings.TrimSuffix(f, ".go")
+	pluginPath := os.Getenv("HOME") + "/.plugins"
+	return fmt.Sprintf("go build -buildmode=plugin -o %s/%s.plugin %s", pluginPath, fileStrip, file)
 }

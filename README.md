@@ -1,5 +1,7 @@
 # Engine
 
+Engine is a pluggable framework for rest/grpc services
+
 `go get github.com/autom8ter/engine`
 
 ## API/Interface/Driver
