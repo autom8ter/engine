@@ -2,15 +2,10 @@ package driver
 
 import (
 	"context"
-	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"net"
 )
-
-type Wrapper interface {
-	Wrap(router *mux.Router) *mux.Router
-}
 
 // Handler is an interface for representing gRPC server implementations.
 type Plugin interface {
@@ -19,7 +14,7 @@ type Plugin interface {
 }
 
 // Server provides an interface for starting and stopping the server.
-type Engine interface {
+type Listener interface {
 	Serve(l net.Listener) error
 	Shutdown()
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/driver"
+	"github.com/autom8ter/engine/listeners"
 	"github.com/pkg/errors"
 	"github.com/soheilhy/cmux"
 	"golang.org/x/sync/errgroup"
@@ -17,7 +18,7 @@ import (
 
 // Engine is the framework instance.
 type Engine struct {
-	cfg *config.Config
+	cfg        *config.Config
 	cancelFunc func()
 }
 
@@ -40,14 +41,12 @@ func New(plugins ...driver.Plugin) *Engine {
 	}
 }
 
-
-
 // Serve starts gRPC and Gateway servers.
 func (e *Engine) Serve() error {
 	var (
-		grpcServer, gatewayServer, muxServer driver.Engine
-		grpcLis, gatewayLis, internalLis     net.Listener
-		err                                  error
+		grpcServer, gatewayServer, muxProxy driver.Listener
+		grpcLis, gatewayLis, internalLis    net.Listener
+		err                                 error
 	)
 
 	if e.cfg.GrpcAddr != nil && e.cfg.GatewayAddr != nil && reflect.DeepEqual(e.cfg.GrpcAddr, e.cfg.GatewayAddr) {
@@ -56,7 +55,7 @@ func (e *Engine) Serve() error {
 			return errors.Wrap(err, "failed to listen network for servers")
 		}
 		mux := cmux.New(lis)
-		muxServer = NewMuxServer(mux, lis)
+		muxProxy = listeners.NewMuxProxy(mux, lis)
 		grpcLis = mux.Match(
 			cmux.HTTP2HeaderField("content-type", "Runtime/grpc"),
 			cmux.HTTP2HeaderField("content-type", "application/grpc"),
@@ -66,7 +65,7 @@ func (e *Engine) Serve() error {
 	}
 
 	// Setup servers
-	grpcServer = NewGrpcServer(e.cfg)
+	grpcServer = listeners.NewGrpcListener(e.cfg)
 
 	// Setup listeners
 	if grpcLis == nil && e.cfg.GrpcAddr != nil {
@@ -78,7 +77,7 @@ func (e *Engine) Serve() error {
 	}
 
 	if e.cfg.GatewayAddr != nil {
-		gatewayServer = NewGatewayServer(e.cfg)
+		gatewayServer = listeners.NewGatewayListener(e.cfg)
 		internalLis, err = e.cfg.GrpcInternalAddr.CreateListener()
 		if err != nil {
 			return errors.Wrap(err, "failed to listen network for gRPC server internal")
@@ -107,15 +106,15 @@ func (e *Engine) Serve() error {
 	if gatewayLis != nil {
 		eg.Go(func() error { return gatewayServer.Serve(gatewayLis) })
 	}
-	if muxServer != nil {
-		eg.Go(func() error { return muxServer.Serve(nil) })
+	if muxProxy != nil {
+		eg.Go(func() error { return muxProxy.Serve(nil) })
 	}
 
 	eg.Go(func() error { return e.watchShutdownSignal(ctx) })
 
 	select {
 	case <-ctx.Done():
-		for _, s := range []driver.Engine{gatewayServer, grpcServer, muxServer} {
+		for _, s := range []driver.Listener{gatewayServer, grpcServer, muxProxy} {
 			if s != nil {
 				s.Shutdown()
 			}

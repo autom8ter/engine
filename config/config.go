@@ -70,7 +70,7 @@ func New(plugins ...driver.Plugin) *Config {
 			IdleTimeout:  2 * time.Minute,
 		},
 		MaxConcurrentStreams: 1000,
-		Plugins: plugins,
+		Plugins:              plugins,
 	}
 	if pkg_runtime.GOOS == "windows" {
 		config.GrpcInternalAddr = &Address{
