@@ -17,21 +17,26 @@ import (
 
 // Engine is the framework instance.
 type Engine struct {
-	*config.Config
+	cfg *config.Config
 	cancelFunc func()
 }
 
 // New creates a server intstance.
 func (e *Engine) With(opts ...config.Option) *Engine {
 	return &Engine{
-		Config: e.Config.With(opts),
+		cfg: e.cfg.With(opts),
 	}
+}
+
+// New creates a server intstance.
+func (e *Engine) Config() *config.Config {
+	return e.cfg
 }
 
 // New creates a server intstance.
 func New(plugins ...driver.Plugin) *Engine {
 	return &Engine{
-		Config: config.New(plugins...),
+		cfg: config.New(plugins...),
 	}
 }
 
@@ -45,8 +50,8 @@ func (e *Engine) Serve() error {
 		err                                  error
 	)
 
-	if e.GrpcAddr != nil && e.GatewayAddr != nil && reflect.DeepEqual(e.GrpcAddr, e.GatewayAddr) {
-		lis, err := e.GrpcAddr.CreateListener()
+	if e.cfg.GrpcAddr != nil && e.cfg.GatewayAddr != nil && reflect.DeepEqual(e.cfg.GrpcAddr, e.cfg.GatewayAddr) {
+		lis, err := e.cfg.GrpcAddr.CreateListener()
 		if err != nil {
 			return errors.Wrap(err, "failed to listen network for servers")
 		}
@@ -61,28 +66,28 @@ func (e *Engine) Serve() error {
 	}
 
 	// Setup servers
-	grpcServer = NewGrpcServer(e.Config)
+	grpcServer = NewGrpcServer(e.cfg)
 
 	// Setup listeners
-	if grpcLis == nil && e.GrpcAddr != nil {
-		grpcLis, err = e.GrpcAddr.CreateListener()
+	if grpcLis == nil && e.cfg.GrpcAddr != nil {
+		grpcLis, err = e.cfg.GrpcAddr.CreateListener()
 		if err != nil {
 			return errors.Wrap(err, "failed to listen network for gRPC server")
 		}
 		defer grpcLis.Close()
 	}
 
-	if e.GatewayAddr != nil {
-		gatewayServer = NewGatewayServer(e.Config)
-		internalLis, err = e.GrpcInternalAddr.CreateListener()
+	if e.cfg.GatewayAddr != nil {
+		gatewayServer = NewGatewayServer(e.cfg)
+		internalLis, err = e.cfg.GrpcInternalAddr.CreateListener()
 		if err != nil {
 			return errors.Wrap(err, "failed to listen network for gRPC server internal")
 		}
 		defer internalLis.Close()
 	}
 
-	if gatewayLis == nil && e.GatewayAddr != nil {
-		gatewayLis, err = e.GatewayAddr.CreateListener()
+	if gatewayLis == nil && e.cfg.GatewayAddr != nil {
+		gatewayLis, err = e.cfg.GatewayAddr.CreateListener()
 		if err != nil {
 			return errors.Wrap(err, "failed to listen network for gateway server")
 		}
