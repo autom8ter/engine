@@ -102,6 +102,26 @@ func TestNewEngine(t *testing.T) {
 ```
 
 # ProtoCtl
-`go get github.com/autom8ter/engine/protoctl`
+
+Download: go get github.com/autom8ter/engine/protoctl
+
+Usage:
+  protoctl [command]
+
+Available Commands:
+  build       build and submit docker image to gcp
+  endpoints   submit protobuf descriptor to gcp cloud endpoints
+  gen         run dockerized prototool generate in current directory
+  help        Help about any command
+  out         run dockerized protoc to generate protobuf descriptor file
+  ping        ping a grpc server with dockerized grpc cli
+
+Flags:
+  -h, --help   help for protoctl
+
+Additional help topics:
+  protoctl config    
+
+Use "protoctl [command] --help" for more information about a command.
 
 ## Example

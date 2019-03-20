@@ -3,6 +3,7 @@ package driver
 import (
 	"context"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"net"
 	"net/http"
@@ -25,3 +26,5 @@ type PassedHeaderDeciderFunc func(string) bool
 
 // HTTPServerMiddleware is an interface of http server middleware
 type HTTPServerMiddleware func(http.Handler) http.Handler
+
+type CliFunc func(cmd *cobra.Command, args []string)

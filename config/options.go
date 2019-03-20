@@ -4,6 +4,7 @@ import (
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/handlers"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 	"os"
@@ -36,6 +37,11 @@ func WithAddr(network, addr string) Option {
 
 // WithGrpcAddr returns an Option that sets an network address for a gRPC server.
 func WithGrpcAddr(network, addr string) Option {
+	address := &Address{
+		Network: network,
+		Addr:    addr,
+	}
+	viper.Set("grpc", address)
 	return func(c *Config) {
 		c.GrpcAddr = &Address{
 			Network: network,
@@ -46,16 +52,23 @@ func WithGrpcAddr(network, addr string) Option {
 
 // WithGrpcInternalAddr returns an Option that sets an network address connected by a gateway server.
 func WithGrpcInternalAddr(network, addr string) Option {
+	address := &Address{
+		Network: network,
+		Addr:    addr,
+	}
+	viper.Set("internal", address)
 	return func(c *Config) {
-		c.GrpcInternalAddr = &Address{
-			Network: network,
-			Addr:    addr,
-		}
+		c.GrpcInternalAddr = address
 	}
 }
 
 // WithGatewayAddr returns an Option that sets an network address for a gateway server.
 func WithGatewayAddr(network, addr string) Option {
+	address := &Address{
+		Network: network,
+		Addr:    addr,
+	}
+	viper.Set("gateway", address)
 	return func(c *Config) {
 		c.GatewayAddr = &Address{
 			Network: network,
@@ -141,12 +154,14 @@ func WithDefaultLogger() Option {
 
 // WithPassedHeader returns an Option that sets configurations about passed headers for a gateway server.
 func WithSwaggerFile(path string) Option {
+	viper.Set("swagger", path)
 	return func(config *Config) {
 		config.Swagger = path
 	}
 }
 
 func WithPluginLoaders(loaders ...driver.PluginLoader) Option {
+	viper.Set("loaders", loaders)
 	return func(config *Config) {
 		for _, l := range loaders {
 			if l.AsPlugin() != nil {
