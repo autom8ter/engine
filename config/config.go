@@ -2,8 +2,9 @@ package config
 
 import (
 	"crypto/tls"
+	"fmt"
 	"github.com/autom8ter/engine/driver"
-	"github.com/autom8ter/engine/middleware"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"net"
 	"net/http"
@@ -20,20 +21,37 @@ import (
 )
 
 func init() {
+	fmt.Println("loading configuration settings with defaults")
 	viper.AutomaticEnv()
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("config")
 	viper.AddConfigPath("plugins")
+	{
+		viper.SetDefault("grpc", &Address{
+			Network: "tcp",
+			Addr:    ":3000",
+		})
+		viper.SetDefault("gateway", &Address{
+			Network: "tcp",
+			Addr:    ":3000",
+		})
+		if pkg_runtime.GOOS == "windows" {
+			viper.SetDefault("internal", &Address{
+				Network: "tcp",
+				Addr:    ":5050",
+			})
+		} else {
+			viper.SetDefault("internal", &Address{
+				Network: "unix",
+				Addr:    "tmp/server.sock",
+			})
+		}
+	}
 	if err := viper.ReadInConfig(); err != nil {
 		log.Println(err.Error())
+	} else {
+		fmt.Printf("using config file: %s\n", viper.ConfigFileUsed())
 	}
-}
-
-func (c *Config) InitConfig() *Config {
-	if err := viper.Unmarshal(c); err != nil {
-		log.Fatal(err.Error())
-	}
-	return c
 }
 
 // Config contains configurations of gRPC and Gateway server.
@@ -41,6 +59,7 @@ type Config struct {
 	GrpcAddr                        *Address `mapstructure:"grpc" json:"grpc"`
 	GrpcInternalAddr                *Address `mapstructure:"internal" json:"internal"`
 	GatewayAddr                     *Address `mapstructure:"gateway" json:"gateway"`
+	Swagger                         string   `mapstructure:"swagger" json:"swagger"`
 	Plugins                         []driver.Plugin
 	GrpcServerUnaryInterceptors     []grpc.UnaryServerInterceptor
 	GrpcServerStreamInterceptors    []grpc.StreamServerInterceptor
@@ -51,19 +70,39 @@ type Config struct {
 	GatewayMuxOptions               []runtime.ServeMuxOption
 	GatewayServerConfig             *HTTPServerConfig
 	MaxConcurrentStreams            uint32
-	GatewayServerMiddlewares        []middleware.HTTPServerMiddleware
+	GatewayServerMiddlewares        []driver.HTTPServerMiddleware
 }
 
 func New(plugins ...driver.Plugin) *Config {
-	config := &Config{
-		GrpcInternalAddr: &Address{
+	internal, ok := configAddr("internal")
+	if !ok {
+		internal = &Address{
 			Network: "unix",
 			Addr:    "tmp/server.sock",
-		},
-		GatewayAddr: &Address{
+		}
+	}
+	if internal.Network == "" {
+		internal.Network = "unix"
+	}
+	if internal.Addr == "" {
+		internal.Addr = "tmp/server.sock"
+	}
+	gateway, ok := configAddr("grpc")
+	if !ok {
+		gateway = &Address{
 			Network: "tcp",
 			Addr:    ":3000",
-		},
+		}
+	}
+	if gateway.Network == "" {
+		internal.Network = "tcp"
+	}
+	if gateway.Addr == "" {
+		internal.Addr = ":3000"
+	}
+	return &Config{
+		GrpcInternalAddr: internal,
+		GatewayAddr:      gateway,
 		GatewayServerConfig: &HTTPServerConfig{
 			ReadTimeout:  8 * time.Second,
 			WriteTimeout: 8 * time.Second,
@@ -72,13 +111,6 @@ func New(plugins ...driver.Plugin) *Config {
 		MaxConcurrentStreams: 1000,
 		Plugins:              plugins,
 	}
-	if pkg_runtime.GOOS == "windows" {
-		config.GrpcInternalAddr = &Address{
-			Network: "tcp",
-			Addr:    ":5050",
-		}
-	}
-	return config
 }
 
 // Address represents a network end point address.
@@ -164,12 +196,29 @@ func (c *Config) ClientOptions() []grpc.DialOption {
 	)
 }
 
-// Option configures a gRPC and a gateway server.
-type Option func(*Config)
+func Debug() {
+	viper.Debug()
+}
 
-func (c *Config) With(opts []Option) *Config {
-	for _, f := range opts {
-		f(c)
+func Settings() map[string]interface{} {
+	return viper.AllSettings()
+}
+
+func BindFlags(cmd *cobra.Command) {
+	_ = viper.BindPFlags(cmd.PersistentFlags())
+	_ = viper.BindPFlags(cmd.Flags())
+	for _, c := range cmd.Commands() {
+		_ = viper.BindPFlags(c.PersistentFlags())
+		_ = viper.BindPFlags(c.Flags())
 	}
-	return c
+}
+
+func configAddr(key string) (*Address, bool) {
+	addr := viper.Get(key)
+	switch addr.(type) {
+	case *Address:
+		return addr.(*Address), true
+	default:
+		return nil, false
+	}
 }

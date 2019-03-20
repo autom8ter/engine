@@ -1,16 +1,14 @@
-package middleware
+package handlers
 
 import (
+	"github.com/autom8ter/engine/driver"
 	"net/http"
 	"sync"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
 
-// PassedHeaderDeciderFunc returns true if given header should be passed to gRPC server metadata.
-type PassedHeaderDeciderFunc func(string) bool
-
-func CreatePassingHeaderMiddleware(decide PassedHeaderDeciderFunc) HTTPServerMiddleware {
+func CreatePassingHeaderMiddleware(decide driver.PassedHeaderDeciderFunc) driver.HTTPServerMiddleware {
 	return func(next http.Handler) http.Handler {
 		cache := new(sync.Map)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

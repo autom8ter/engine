@@ -1,6 +1,7 @@
-package middleware
+package handlers
 
 import (
+	"github.com/autom8ter/engine/driver"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,7 +13,7 @@ import (
 func Test_passingHeaderMiddleware(t *testing.T) {
 	type Case struct {
 		test    string
-		decider PassedHeaderDeciderFunc
+		decider driver.PassedHeaderDeciderFunc
 		in      http.Header
 		out     http.Header
 	}

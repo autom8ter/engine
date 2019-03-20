@@ -2,13 +2,22 @@ package config
 
 import (
 	"github.com/autom8ter/engine/driver"
-	"github.com/autom8ter/engine/middleware"
-	"os"
-
+	"github.com/autom8ter/engine/handlers"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
+	"os"
 )
+
+// Option configures a gRPC and a gateway server.
+type Option func(*Config)
+
+func (c *Config) With(opts []Option) *Config {
+	for _, f := range opts {
+		f(c)
+	}
+	return c
+}
 
 // WithServers returns an Option that sets gRPC service server implementation(s).
 func WithPlugins(svrs ...driver.Plugin) Option {
@@ -105,7 +114,7 @@ func WithGatewayMuxOptions(opts ...runtime.ServeMuxOption) Option {
 }
 
 // WithGatewayServerMiddlewares returns an Option that sets middleware(s) for http.driver.Plugin to a gateway server.
-func WithGatewayServerMiddlewares(middlewares ...middleware.HTTPServerMiddleware) Option {
+func WithGatewayServerMiddlewares(middlewares ...driver.HTTPServerMiddleware) Option {
 	return func(c *Config) {
 		c.GatewayServerMiddlewares = append(c.GatewayServerMiddlewares, middlewares...)
 	}
@@ -119,13 +128,30 @@ func WithGatewayServerConfig(cfg *HTTPServerConfig) Option {
 }
 
 // WithPassedHeader returns an Option that sets configurations about passed headers for a gateway server.
-func WithPassedHeader(decider middleware.PassedHeaderDeciderFunc) Option {
-	return WithGatewayServerMiddlewares(middleware.CreatePassingHeaderMiddleware(decider))
+func WithPassedHeader(decider driver.PassedHeaderDeciderFunc) Option {
+	return WithGatewayServerMiddlewares(handlers.CreatePassingHeaderMiddleware(decider))
 }
 
 // WithDefaultLogger returns an Option that sets default grpclogger.LoggerV2 object.
 func WithDefaultLogger() Option {
 	return func(c *Config) {
 		grpclog.SetLoggerV2(grpclog.NewLoggerV2(os.Stdout, os.Stderr, os.Stderr))
+	}
+}
+
+// WithPassedHeader returns an Option that sets configurations about passed headers for a gateway server.
+func WithSwaggerFile(path string) Option {
+	return func(config *Config) {
+		config.Swagger = path
+	}
+}
+
+func WithPluginLoaders(loaders ...driver.PluginLoader) Option {
+	return func(config *Config) {
+		for _, l := range loaders {
+			if l.AsPlugin() != nil {
+				config.Plugins = append(config.Plugins, l.AsPlugin())
+			}
+		}
 	}
 }
