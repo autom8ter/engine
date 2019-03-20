@@ -22,11 +22,20 @@ type Engine struct {
 }
 
 // New creates a server intstance.
-func New(opts ...Option) *Engine {
+func (e *Engine) With(opts ...config.Option) *Engine {
 	return &Engine{
-		Config: createConfig(opts),
+		Config: e.Config.With(opts),
 	}
 }
+
+// New creates a server intstance.
+func New(plugins ...driver.Plugin) *Engine {
+	return &Engine{
+		Config: config.New(plugins...),
+	}
+}
+
+
 
 // Serve starts gRPC and Gateway servers.
 func (e *Engine) Serve() error {

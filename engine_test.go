@@ -7,11 +7,7 @@ import (
 )
 
 func TestNewEngine(t *testing.T) {
-	e := engine.New(
-		engine.WithDefaultLogger(),
-		engine.WithPlugins(helloworld.NewBasicGreeter()),
-	)
-	if err := e.Serve(); err != nil {
+	if err := engine.New(helloworld.NewBasicGreeter()).With(engine.WithDefaultLogger()).Serve(); err != nil {
 		t.Fatal(err.Error())
 	}
 }

@@ -38,9 +38,9 @@ func (c *Config) InitConfig() *Config {
 
 // Config contains configurations of gRPC and Gateway server.
 type Config struct {
-	GrpcAddr                        *Address `mapstructure:"grpc_addr"`
-	GrpcInternalAddr                *Address `mapstructure:"internal_addr"`
-	GatewayAddr                     *Address `mapstructure:"gateway_addr"`
+	GrpcAddr                        *Address `mapstructure:"grpc" json:"grpc"`
+	GrpcInternalAddr                *Address `mapstructure:"internal" json:"internal"`
+	GatewayAddr                     *Address `mapstructure:"gateway" json:"gateway"`
 	Plugins                         []driver.Plugin
 	GrpcServerUnaryInterceptors     []grpc.UnaryServerInterceptor
 	GrpcServerStreamInterceptors    []grpc.StreamServerInterceptor
@@ -54,7 +54,7 @@ type Config struct {
 	GatewayServerMiddlewares        []middleware.HTTPServerMiddleware
 }
 
-func CreateDefaultConfig() *Config {
+func New(plugins ...driver.Plugin) *Config {
 	config := &Config{
 		GrpcInternalAddr: &Address{
 			Network: "unix",
@@ -70,6 +70,7 @@ func CreateDefaultConfig() *Config {
 			IdleTimeout:  2 * time.Minute,
 		},
 		MaxConcurrentStreams: 1000,
+		Plugins: plugins,
 	}
 	if pkg_runtime.GOOS == "windows" {
 		config.GrpcInternalAddr = &Address{
@@ -82,8 +83,8 @@ func CreateDefaultConfig() *Config {
 
 // Address represents a network end point address.
 type Address struct {
-	Network string `mapstructure:"network"`
-	Addr    string `mapstructure:"addr"`
+	Network string `mapstructure:"network" json:"network"`
+	Addr    string `mapstructure:"addr" json:"addr"`
 }
 
 func (a *Address) CreateListener() (net.Listener, error) {
@@ -107,11 +108,11 @@ func (a *Address) CreateListener() (net.Listener, error) {
 
 type HTTPServerConfig struct {
 	TLSConfig         *tls.Config
-	ReadTimeout       time.Duration `mapstructure:"read_timeout"`
-	ReadHeaderTimeout time.Duration `mapstructure:"read_header_timeout"`
-	WriteTimeout      time.Duration `mapstructure:"write_timeout"`
-	IdleTimeout       time.Duration `mapstructure:"idle_timeout"`
-	MaxHeaderBytes    int           `mapstructure:"max_header_bytes"`
+	ReadTimeout       time.Duration `mapstructure:"read_timeout" json:"read_timeout"`
+	ReadHeaderTimeout time.Duration `mapstructure:"read_header_timeout" json:"read_header_timeout"`
+	WriteTimeout      time.Duration `mapstructure:"write_timeout" json:"write_timeout"`
+	IdleTimeout       time.Duration `mapstructure:"idle_timeout" json:"idle_timeout"`
+	MaxHeaderBytes    int           `mapstructure:"max_header_bytes" json:"max_header_bytes"`
 	TLSNextProto      map[string]func(*http.Server, *tls.Conn, http.Handler)
 	ConnState         func(net.Conn, http.ConnState)
 }
@@ -161,4 +162,14 @@ func (c *Config) ClientOptions() []grpc.DialOption {
 		},
 		c.GatewayDialOption...,
 	)
+}
+
+// Option configures a gRPC and a gateway server.
+type Option func(*Config)
+
+func (c *Config) With(opts []Option) *Config {
+	for _, f := range opts {
+		f(c)
+	}
+	return c
 }
