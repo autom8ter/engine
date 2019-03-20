@@ -62,6 +62,13 @@ func Files() []string {
 		if info.IsDir() {
 			return nil
 		}
+		dir, _ := filepath.Split(path)
+		if strings.Contains(dir, "git") {
+			return nil
+		}
+		if filepath.Ext(path) == ".git" {
+			return nil
+		}
 		files = append(files, path)
 		return nil
 	}); err != nil {
@@ -88,6 +95,5 @@ func Build(file string) ([]byte, error) {
 func GetScript(file string) string {
 	_, f := filepath.Split(file)
 	fileStrip := strings.TrimSuffix(f, ".go")
-	pluginPath := os.Getenv("HOME") + "/.plugins"
-	return fmt.Sprintf("go build -buildmode=plugin -o %s/%s.plugin %s", pluginPath, fileStrip, file)
+	return fmt.Sprintf("env GOOS=linux go build -buildmode=plugin -o %s/%s.plugin %s", pluginPath, fileStrip, file)
 }

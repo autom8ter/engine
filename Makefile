@@ -13,7 +13,7 @@ build:
 	docker build -t enginectl .
 
 run:
-	docker run --name enginectl -t -d enginectl
+	docker run --name enginectl -d -p 3000:3000 colemanword/enginectl init
 
 prune:
 	docker container stop enginectl

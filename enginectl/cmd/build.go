@@ -22,6 +22,7 @@ import (
 )
 
 var file string
+var platform string
 
 // buildCmd represents the build command
 var buildCmd = &cobra.Command{
@@ -41,6 +42,7 @@ var buildCmd = &cobra.Command{
 }
 
 func init() {
+	buildCmd.Flags().StringVarP(&platform, "platform", "p", "linux", "platform to build for")
 	buildCmd.Flags().StringVarP(&file, "file", "f", "", "file to generate plugin for")
 	rootCmd.AddCommand(buildCmd)
 }
