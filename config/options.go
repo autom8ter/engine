@@ -3,10 +3,13 @@ package config
 import (
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/handlers"
+	"github.com/autom8ter/engine/plugin"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
+	"log"
 	"os"
 )
 
@@ -160,13 +163,16 @@ func WithSwaggerFile(path string) Option {
 	}
 }
 
-func WithPluginLoaders(loaders ...driver.PluginLoader) Option {
-	viper.Set("loaders", loaders)
+func WithPluginLoaders(loaders ...plugin.PluginLoader) Option {
+	viper.Set("plugins", loaders)
 	return func(config *Config) {
 		for _, l := range loaders {
 			if l.AsPlugin() != nil {
 				config.Plugins = append(config.Plugins, l.AsPlugin())
 			}
+		}
+		if len(config.Plugins) == 0 {
+			log.Fatal(errors.New("zero valid plugins registered"))
 		}
 	}
 }

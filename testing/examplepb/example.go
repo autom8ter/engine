@@ -1,4 +1,4 @@
-package examplepb
+package main
 
 import (
 	"context"
@@ -7,6 +7,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+var ExamplePb  Example
+
 type Example struct {
 }
 
@@ -14,16 +16,34 @@ func NewExample() *Example {
 	return &Example{}
 }
 
-func (e *Example) Echo(context.Context, *examplepb.SimpleMessage) (*examplepb.SimpleMessage, error) {
-	panic("implement me")
+func (e *Example) Echo(ctx context.Context, r *examplepb.SimpleMessage) (*examplepb.SimpleMessage, error) {
+	return &examplepb.SimpleMessage{
+		Id:                   r.Id,
+		Num:                  r.Num,
+		Code:                 r.Code,
+		Status:               r.Status,
+		Ext:                  r.Ext,
+	}, nil
 }
 
-func (e *Example) EchoBody(context.Context, *examplepb.SimpleMessage) (*examplepb.SimpleMessage, error) {
-	panic("implement me")
+func (e *Example) EchoBody(ctx context.Context, r *examplepb.SimpleMessage) (*examplepb.SimpleMessage, error) {
+	return &examplepb.SimpleMessage{
+		Id:                   r.Id,
+		Num:                  r.Num,
+		Code:                 r.Code,
+		Status:               r.Status,
+		Ext:                  r.Ext,
+	}, nil
 }
 
-func (e *Example) EchoDelete(context.Context, *examplepb.SimpleMessage) (*examplepb.SimpleMessage, error) {
-	panic("implement me")
+func (e *Example) EchoDelete(ctx context.Context, r *examplepb.SimpleMessage) (*examplepb.SimpleMessage, error) {
+	return &examplepb.SimpleMessage{
+		Id:                   r.Id,
+		Num:                  r.Num,
+		Code:                 r.Code,
+		Status:               r.Status,
+		Ext:                  r.Ext,
+	}, nil
 }
 
 func (e *Example) RegisterWithServer(s *grpc.Server) {
