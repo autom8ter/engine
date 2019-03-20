@@ -23,7 +23,7 @@ func createConfig(opts []Option) *config.Config {
 }
 
 // WithServers returns an Option that sets gRPC service server implementation(s).
-func WithServers(svrs ...driver.Plugin) Option {
+func WithPlugins(svrs ...driver.Plugin) Option {
 	return func(c *config.Config) {
 		c.Plugins = append(c.Plugins, svrs...)
 	}

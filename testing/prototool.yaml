@@ -1,0 +1,42 @@
+protoc:
+  version: 3.6.1
+  allow_unused_imports: true
+  includes:
+    - /usr/local/include
+
+lint:
+  rules:
+    remove:
+      - FILE_OPTIONS_REQUIRE_JAVA_MULTIPLE_FILES
+      - FILE_OPTIONS_REQUIRE_JAVA_PACKAGE
+      - FILE_OPTIONS_REQUIRE_JAVA_OUTER_CLASSNAME
+      - FILE_OPTIONS_EQUAL_GO_PACKAGE_PB_SUFFIX
+
+generate:
+  go_options:
+    import_path: github.com/autom8ter/engine/testing
+
+  plugins:
+    - name: go
+      type: go
+      flags: plugins=grpc
+      output: .
+
+    - name: grpc-gateway
+      type: go
+      flags: logtostderr=true
+      output: .
+
+    - name: swagger
+      type: go
+      output: .
+      flags: logtostderr=true
+
+    - flags: binary,import_style=commonjs
+      name: js
+      output: client
+
+    - name: cobra
+      type: go
+      output: .
+      flags: plugins=client

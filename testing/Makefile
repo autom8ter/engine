@@ -9,3 +9,7 @@ check:	## go format ./..., go vet ./..., go install ./..., git add ., git commit
 	@go install ./...
 	@git add .
 	@git commit -m "check"
+
+.PHONY: gen
+gen:
+	@docker run -v `pwd`:/defs colemanword/prototool generate
