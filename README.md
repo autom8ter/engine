@@ -1,7 +1,5 @@
 # Engine
 
-![](https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwi828rtrpThAhVDyYMKHRTpDz8QjRx6BAgBEAU&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fmotor-engine-vector-5881&psig=AOvVaw30k6gyAjR8wy-y1i5reNzc&ust=1553296573608606)
-    
 A Pluggable gRPC Microservice Framework
                
 `go get github.com/autom8ter/engine`
@@ -13,11 +11,11 @@ Contributers: Coleman Word
 License: MIT
 
 ## Overview
-Engine is a pluggable framework for grpc services
 
-- Engine serves go/plugins that. 
-- Plugins must export a type that implements the driver.Plugin interface: RegisterWithServer(s *grpc.Server)
+- Engine serves [go/plugins](https://golang.org/pkg/plugin/) that are dynamically loaded at runtime.
+- Plugins export a type that implements the driver.Plugin interface: RegisterWithServer(s *grpc.Server)
 - Exported plugins must be named Plugin
+- Engine decouples the server runtime from grpc service development so that plugins can be added as externally compiled files that can be added to a deployment from local storage without making changes to the engine runtime.
 
 ## Features
 
@@ -28,6 +26,8 @@ Engine is a pluggable framework for grpc services
 - [x] Support for custom gRPC Server options
 - [x] Support for custom and chained Unary Interceptors
 - [x] Support for custom and chained Stream Interceptors
+- [ ] Good goDoc documentation
+- [ ] 80%+ code coverage
 - [ ] Load go/plugins from paths set in environmental variables
 - [ ] Load go/plugins directly from AWS S3
 - [ ] Load go/plugins directly from GCP storage
