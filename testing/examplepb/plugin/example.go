@@ -4,8 +4,8 @@ package main
 
 import (
 	"context"
+	"github.com/autom8ter/engine/driver"
 	"github.com/grpc-ecosystem/grpc-gateway/examples/proto/examplepb"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 )
 
@@ -44,10 +44,15 @@ rpc Echo(SimpleMessage) returns (SimpleMessage) {
 var Plugin  Example
 
 type Example struct {
+	driver.PluginFunc
 }
 
 func NewExample() *Example {
-	return &Example{}
+	e := &Example{}
+	e.PluginFunc = func(s *grpc.Server) {
+		examplepb.RegisterEchoServiceServer(s, e)
+	}
+	return e
 }
 
 func (e *Example) Echo(ctx context.Context, r *examplepb.SimpleMessage) (*examplepb.SimpleMessage, error) {
@@ -78,13 +83,4 @@ func (e *Example) EchoDelete(ctx context.Context, r *examplepb.SimpleMessage) (*
 		Status:               r.Status,
 		Ext:                  r.Ext,
 	}, nil
-}
-
-func (e *Example) RegisterWithServer(s *grpc.Server) {
-
-	examplepb.RegisterEchoServiceServer(s, e)
-}
-
-func (e *Example) RegisterWithHandler(ctx context.Context, m *runtime.ServeMux, cc *grpc.ClientConn) error {
-	return examplepb.RegisterEchoServiceHandler(ctx, m, cc)
 }

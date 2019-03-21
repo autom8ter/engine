@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
-	"log"
 	"os"
 )
 
@@ -25,7 +24,7 @@ func WithGoPlugins(svrs ...driver.Plugin) Option {
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, svrs...)
 		if len(c.Plugins) == 0 {
-			log.Fatal(errors.New("zero valid plugins registered"))
+			grpclog.Fatal(errors.New("zero valid plugins registered"))
 		}
 	}
 }

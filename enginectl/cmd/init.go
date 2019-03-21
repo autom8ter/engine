@@ -29,6 +29,7 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "load plugins from $HOME/.plugins and start the enginectl server",
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Current Config:")
 		fmt.Println(util.ToPrettyJsonString(viper.AllSettings()))
 		if err := eng().Serve(); err != nil {
 			grpclog.Fatalln(err.Error())
