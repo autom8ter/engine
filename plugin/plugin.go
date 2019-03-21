@@ -2,9 +2,7 @@ package plugin
 
 import (
 	"fmt"
-	"github.com/autom8ter/engine/bash"
 	"github.com/autom8ter/engine/driver"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/grpclog"
 	"log"
@@ -15,13 +13,13 @@ import (
 )
 
 func init() {
-	// Find home directory.
-	home, err := homedir.Dir()
+	var err error
+	pth, err := os.Getwd()
 	if err != nil {
-		home = os.Getenv("HOME")
+		pluginPath = os.Getenv("PWD") + "/plugins"
+	} else {
+		pluginPath = pth + "/plugins"
 	}
-	pluginPath = home + "/.plugins"
-	grpclog.Infof("registered plugin path: %s\n", pluginPath)
 }
 
 var pluginPath string
@@ -62,13 +60,14 @@ func Files() []string {
 		if info.IsDir() {
 			return nil
 		}
-		dir, _ := filepath.Split(path)
-		if strings.Contains(dir, "git") {
+
+		if strings.Contains(path, "ingore") {
 			return nil
 		}
-		if filepath.Ext(path) == ".git" {
+		if strings.Contains(path, "yaml") {
 			return nil
 		}
+
 		files = append(files, path)
 		return nil
 	}); err != nil {
@@ -86,14 +85,4 @@ func LoadPlugins() []driver.Plugin {
 	}
 	viper.Set("plugins", plugs)
 	return plugs
-}
-
-func Build(file string) ([]byte, error) {
-	return bash.Bash(GetScript(file))
-}
-
-func GetScript(file string) string {
-	_, f := filepath.Split(file)
-	fileStrip := strings.TrimSuffix(f, ".go")
-	return fmt.Sprintf("env GOOS=linux go build -buildmode=plugin -o %s/%s.plugin %s", pluginPath, fileStrip, file)
 }
