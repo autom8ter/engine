@@ -1,0 +1,4 @@
+network: "tcp"
+address: ":3000"
+plugins:
+  - "plugins/example.plugin"

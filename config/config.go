@@ -41,7 +41,7 @@ func New() *Config {
 	if err := viper.Unmarshal(cfg); err != nil {
 		grpclog.Fatal(err.Error())
 	}
-	cfg.Plugins = plugin.LoadPlugins()
+	cfg.Plugins = plugin.GetLoader().LoadPlugins()
 	return cfg
 }
 

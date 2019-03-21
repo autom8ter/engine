@@ -16,8 +16,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/autom8ter/engine/plugin"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"os"
 )
 
@@ -41,15 +41,12 @@ var rootCmd = &cobra.Command{
 Download:
 go get github.com/autom8ter/engine/enginectl
 ----------------------------------------------------------------------------
-Expected Plugin Path:
-$HOME/.plugins
-----------------------------------------------------------------------------
 Expected Plugin Export Name:
 Plugin
 ----------------------------------------------------------------------------
-Plugins Files Found:
+Config:
 %s
-`, plugin.Files()),
+`, viper.AllSettings()),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
