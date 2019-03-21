@@ -16,18 +16,6 @@ import (
 	"syscall"
 )
 
-func init() {
-	var err error
-	pth, err := os.Getwd()
-	if err != nil {
-		pluginPath = os.Getenv("PWD") + "/plugins"
-	} else {
-		pluginPath = pth + "/plugins"
-	}
-}
-
-var pluginPath string
-
 type Engine interface {
 	With(opts ...config.Option) *Runtime
 	Config() *config.Config
