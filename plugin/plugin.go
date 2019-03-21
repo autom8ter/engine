@@ -83,6 +83,6 @@ func LoadPlugins() []driver.Plugin {
 		newPlug := NewPluginLoader(path, "Plugin")
 		plugs = append(plugs, newPlug.AsPlugin())
 	}
-	viper.Set("plugins", plugs)
+	viper.Set("files", files)
 	return plugs
 }

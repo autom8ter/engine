@@ -18,34 +18,25 @@ import (
 	"github.com/autom8ter/engine"
 	"github.com/autom8ter/engine/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc/grpclog"
 )
-
-var addr string
-var network string
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "load plugins from $HOME/.plugins and start the enginectl server",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := eng(); err != nil {
+		viper.Debug()
+		if err := eng().Serve(); err != nil {
 			grpclog.Fatalln(err.Error())
 		}
+
 	},
 }
 
-func init() {
-	initCmd.Flags().StringVarP(&network, "network", "n", "tcp", "network address to listen on")
-	initCmd.Flags().StringVarP(&addr, "address", "a", ":3000", "network address to listen on")
-	rootCmd.AddCommand(initCmd)
-
-}
-
-func eng() error {
+func eng() engine.Engine {
 	return engine.New().With(
-		config.WithDefaultLogger(),
-		config.WithAddr(network, addr),
-		config.WithPlugins(),
-	).Serve()
+		config.WithGRPCLogger(),
+	)
 }

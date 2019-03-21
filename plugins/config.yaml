@@ -1,0 +1,2 @@
+network: "tcp"
+address: ":3000"
