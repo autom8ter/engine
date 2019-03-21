@@ -2,7 +2,6 @@ package servers
 
 import (
 	"github.com/autom8ter/engine/driver"
-	"github.com/pkg/errors"
 	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc/grpclog"
 	"net"
@@ -24,19 +23,16 @@ func NewMuxServer(mux cmux.CMux, lis net.Listener) driver.Server {
 
 // Serve implements Server.Serve
 func (s *MuxServer) Serve(net.Listener) error {
-	grpclog.Info("mux is starting %s", s.lis.Addr())
+	grpclog.Info("mux-server is starting %s", s.lis.Addr())
 
-	err := s.mux.Serve()
-
-	grpclog.Infof("mux is closed: %v", err)
-
-	return errors.Wrap(err, "failed to serve cmux server")
+	return s.mux.Serve()
 }
 
 // Shutdown implements Server.Shutdown
 func (s *MuxServer) Shutdown() {
+	grpclog.Infof("shutting down mux-server...")
 	err := s.lis.Close()
 	if err != nil {
-		grpclog.Errorf("failed to close cmux's listener: %v", err)
+		grpclog.Errorf("failed to close mux-server's listener: %v", err)
 	}
 }

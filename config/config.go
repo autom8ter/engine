@@ -72,6 +72,7 @@ type Config struct {
 	GatewayServerConfig             *HTTPServerConfig
 	MaxConcurrentStreams            uint32
 	GatewayServerMiddlewares        []handlers.HTTPServerMiddleware
+	RouterWare                      []handlers.RouterMiddleware
 }
 
 func New(plugins ...driver.Plugin) *Config {

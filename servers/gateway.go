@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/driver"
+	"github.com/gorilla/mux"
 	"net"
 	"net/http"
 	"time"
@@ -37,43 +38,36 @@ func (s *GatewayServer) Serve(l net.Listener) error {
 
 	s.server, err = s.createServer(conn)
 	if err != nil {
-		return errors.Wrap(err, "failed to create gRPC Gateway server: %v")
+		return errors.Wrap(err, "failed to create grpc-gateway server: %v")
 	}
 
 	grpclog.Infof("grpc-gateway server is starting %s", l.Addr())
 
-	err = s.server.Serve(l)
-
-	grpclog.Infof("stopped taking more http(s) requests: %v", err)
-
-	if err != http.ErrServerClosed {
-		return errors.Wrap(err, "failed to serve grpc-gateway server")
-	}
-
-	return nil
+	return s.server.Serve(l)
 }
 
 // Shutdown implements Server.Shutdown
 func (s *GatewayServer) Shutdown() {
+	grpclog.Infof("shutting down grpc-gateway server...")
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	err := s.server.Shutdown(ctx)
-	grpclog.Info("All http(s) requets finished")
 	if err != nil {
 		grpclog.Errorf("failed to shutdown grpc-gateway server: %v", err)
 	}
 }
 
-func (s *GatewayServer) createConn() (conn *grpc.ClientConn, err error) {
-	conn, err = grpc.Dial(s.GrpcInternalAddr.Addr, s.ClientOptions()...)
+func (s *GatewayServer) createConn() (*grpc.ClientConn, error) {
+	conn, err := grpc.Dial(s.GrpcInternalAddr.Addr, s.ClientOptions()...)
 	if err != nil {
-		err = errors.Wrap(err, "failed to connect to gRPC server")
+		err = errors.Wrap(err, "failed to connect to gRPC server from grpc-gateway server")
 	}
-	return
+	return conn, err
 }
 
 func (s *GatewayServer) createServer(conn *grpc.ClientConn) (*http.Server, error) {
-	mux := runtime.NewServeMux(
+	grpclog.Infof("creating grpc-gateway serve mux...")
+	rmux := runtime.NewServeMux(
 		append(
 			[]runtime.ServeMuxOption{runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler)},
 			s.GatewayMuxOptions...,
@@ -83,18 +77,26 @@ func (s *GatewayServer) createServer(conn *grpc.ClientConn) (*http.Server, error
 	defer cancel()
 
 	for _, svr := range s.Plugins {
-		err := svr.RegisterWithHandler(ctx, mux, conn)
+		err := svr.RegisterWithHandler(ctx, rmux, conn)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to register handler")
+			return nil, errors.Wrap(err, "failed to register handler for grpc-gateway server")
 		}
 	}
 
-	var handler http.Handler = mux
+	var handler http.Handler = rmux
 
 	for i := len(s.GatewayServerMiddlewares) - 1; i >= 0; i-- {
+		grpclog.Infof("registering grpc-gateway middleware...")
+
 		handler = (s.GatewayServerMiddlewares[i])(handler)
 	}
+	router := mux.NewRouter()
 
+	for _, r := range s.RouterWare {
+		grpclog.Infof("registering grpc-gateway routerware...")
+		router = r(router)
+	}
+	grpclog.Infof("configuring grpc-gateway server...")
 	svr := &http.Server{
 		Handler: handler,
 	}

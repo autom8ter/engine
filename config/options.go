@@ -176,3 +176,10 @@ func WithPlugins() Option {
 		}
 	}
 }
+
+// WithPassedHeader returns an Option that sets configurations about passed headers for a gateway server.
+func WIthRouterWare(fns ...handlers.RouterMiddleware) Option {
+	return func(config *Config) {
+		config.RouterWare = append(config.RouterWare, fns...)
+	}
+}
