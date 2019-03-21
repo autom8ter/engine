@@ -44,7 +44,16 @@ go get github.com/autom8ter/engine/enginectl
 Expected Plugin Export Name:
 Plugin
 ----------------------------------------------------------------------------
-Config:
+Example Json Config:
+{
+  "address": ":3000",
+  "network": "tcp",
+  "plugins": [
+    "plugins/example.plugin"
+  ]
+}
+----------------------------------------------------------------------------
+Current Config:
 %s
 `, viper.AllSettings()),
 }

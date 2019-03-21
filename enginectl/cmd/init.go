@@ -15,8 +15,10 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/autom8ter/engine"
 	"github.com/autom8ter/engine/config"
+	"github.com/autom8ter/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/grpclog"
@@ -27,7 +29,7 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "load plugins from $HOME/.plugins and start the enginectl server",
 	Run: func(cmd *cobra.Command, args []string) {
-		viper.Debug()
+		fmt.Println(util.ToPrettyJsonString(viper.AllSettings()))
 		if err := eng().Serve(); err != nil {
 			grpclog.Fatalln(err.Error())
 		}

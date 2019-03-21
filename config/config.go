@@ -15,12 +15,10 @@ import (
 func init() {
 	viper.AutomaticEnv()
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("config")
-	viper.AddConfigPath("plugins")
 	viper.SetDefault("network", "tcp")
 	viper.SetDefault("address", ":3000")
 	if err := viper.ReadInConfig(); err != nil {
-		grpclog.Infoln(err.Error())
+		grpclog.Warningln(err.Error())
 	} else {
 		grpclog.Infof("using config file: %s\n", viper.ConfigFileUsed())
 	}
@@ -41,7 +39,7 @@ func New() *Config {
 	if err := viper.Unmarshal(cfg); err != nil {
 		grpclog.Fatal(err.Error())
 	}
-	cfg.Plugins = plugin.GetLoader().LoadPlugins()
+	cfg.Plugins = plugin.LoadPlugins()
 	return cfg
 }
 
