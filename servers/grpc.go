@@ -1,4 +1,4 @@
-package listeners
+package servers
 
 import (
 	"github.com/autom8ter/engine/config"
@@ -11,26 +11,26 @@ import (
 )
 
 // GrpcServer wraps grpc.Server setup process.
-type GrpcListener struct {
+type GrpcServer struct {
 	server *grpc.Server
 	*config.Config
 }
 
 // NewGrpcServer creates GrpcServer instance.
-func NewGrpcListener(c *config.Config) driver.Listener {
+func NewGrpcServer(c *config.Config) driver.Server {
 	s := grpc.NewServer(c.ServerOptions()...)
 	reflection.Register(s)
 	for _, svr := range c.Plugins {
 		svr.RegisterWithServer(s)
 	}
-	return &GrpcListener{
+	return &GrpcServer{
 		server: s,
 		Config: c,
 	}
 }
 
 // Serve implements Server.Shutdown
-func (s *GrpcListener) Serve(l net.Listener) error {
+func (s *GrpcServer) Serve(l net.Listener) error {
 	grpclog.Infof("gRPC server is starting %s", l.Addr())
 
 	err := s.server.Serve(l)
@@ -41,6 +41,6 @@ func (s *GrpcListener) Serve(l net.Listener) error {
 }
 
 // Shutdown implements Server.Shutdown
-func (s *GrpcListener) Shutdown() {
+func (s *GrpcServer) Shutdown() {
 	s.server.GracefulStop()
 }

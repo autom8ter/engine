@@ -134,7 +134,7 @@ func WithGatewayMuxOptions(opts ...runtime.ServeMuxOption) Option {
 }
 
 // WithGatewayServerMiddlewares returns an Option that sets middleware(s) for http.driver.Plugin to a gateway server.
-func WithGatewayServerMiddlewares(middlewares ...driver.HTTPServerMiddleware) Option {
+func WithGatewayServerMiddlewares(middlewares ...handlers.HTTPServerMiddleware) Option {
 	return func(c *Config) {
 		c.GatewayServerMiddlewares = append(c.GatewayServerMiddlewares, middlewares...)
 	}
@@ -148,7 +148,7 @@ func WithGatewayServerConfig(cfg *HTTPServerConfig) Option {
 }
 
 // WithPassedHeader returns an Option that sets configurations about passed headers for a gateway server.
-func WithPassedHeader(decider driver.PassedHeaderDeciderFunc) Option {
+func WithPassedHeader(decider handlers.PassedHeaderDeciderFunc) Option {
 	return WithGatewayServerMiddlewares(handlers.CreatePassingHeaderMiddleware(decider))
 }
 

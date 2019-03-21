@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+// PassedHeaderDeciderFunc returns true if given header should be passed to gRPC server metadata.
+type PassedHeaderDeciderFunc func(string) bool
+
+// HTTPServerMiddleware is an interface of http server middleware
+type HTTPServerMiddleware func(http.Handler) http.Handler
+
 // MethodHandler is an http.Handler that dispatches to a handler whose key in the
 // MethodHandler's map matches the name of the HTTP request's method, eg: GET
 //
@@ -167,4 +173,10 @@ func HTTPMethodOverrideHandler(h http.Handler) http.Handler {
 		}
 		h.ServeHTTP(w, r)
 	})
+}
+
+func NotImplementedFunc() http.HandlerFunc {
+	return func(w http.ResponseWriter, request *http.Request) {
+		w.Write([]byte("Not Implemented"))
+	}
 }

@@ -19,7 +19,13 @@ func (c *CmdStat) Error() string {
 	return fmt.Sprintln(util.ToPrettyJsonString(c))
 }
 
-func Bash(script string) ([]byte, error) {
+type Script string
+
+func NewScript(s string) Script {
+	return Script(s)
+}
+
+func (s Script) Bash(script string) ([]byte, error) {
 	cmd := exec.Command("bash", "-c", script)
 	cmd.Dir = "."
 	cmd.Env = os.Environ()

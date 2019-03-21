@@ -1,4 +1,4 @@
-package listeners
+package servers
 
 import (
 	"github.com/autom8ter/engine/driver"
@@ -9,21 +9,21 @@ import (
 )
 
 // MuxServer wraps a connection multiplexer and a listener.
-type MuxProxy struct {
+type MuxServer struct {
 	mux cmux.CMux
 	lis net.Listener
 }
 
 // NewMuxServer creates MuxServer instance.
-func NewMuxProxy(mux cmux.CMux, lis net.Listener) driver.Listener {
-	return &MuxProxy{
+func NewMuxServer(mux cmux.CMux, lis net.Listener) driver.Server {
+	return &MuxServer{
 		mux: mux,
 		lis: lis,
 	}
 }
 
 // Serve implements Server.Serve
-func (s *MuxProxy) Serve(net.Listener) error {
+func (s *MuxServer) Serve(net.Listener) error {
 	grpclog.Info("mux is starting %s", s.lis.Addr())
 
 	err := s.mux.Serve()
@@ -34,7 +34,7 @@ func (s *MuxProxy) Serve(net.Listener) error {
 }
 
 // Shutdown implements Server.Shutdown
-func (s *MuxProxy) Shutdown() {
+func (s *MuxServer) Shutdown() {
 	err := s.lis.Close()
 	if err != nil {
 		grpclog.Errorf("failed to close cmux's listener: %v", err)

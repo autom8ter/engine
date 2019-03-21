@@ -3,6 +3,8 @@ package config
 import (
 	"crypto/tls"
 	"github.com/autom8ter/engine/driver"
+	"github.com/autom8ter/engine/handlers"
+	"github.com/autom8ter/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/grpclog"
@@ -69,7 +71,7 @@ type Config struct {
 	GatewayMuxOptions               []runtime.ServeMuxOption
 	GatewayServerConfig             *HTTPServerConfig
 	MaxConcurrentStreams            uint32
-	GatewayServerMiddlewares        []driver.HTTPServerMiddleware
+	GatewayServerMiddlewares        []handlers.HTTPServerMiddleware
 }
 
 func New(plugins ...driver.Plugin) *Config {
@@ -193,6 +195,10 @@ func (c *Config) ClientOptions() []grpc.DialOption {
 		},
 		c.GatewayDialOption...,
 	)
+}
+
+func (c *Config) String() string {
+	return util.ToPrettyJsonString(c)
 }
 
 func Debug() {

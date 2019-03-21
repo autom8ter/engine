@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"github.com/autom8ter/engine/driver"
 	"net/http"
 	"sync"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
 
-func CreatePassingHeaderMiddleware(decide driver.PassedHeaderDeciderFunc) driver.HTTPServerMiddleware {
+func CreatePassingHeaderMiddleware(decide PassedHeaderDeciderFunc) HTTPServerMiddleware {
 	return func(next http.Handler) http.Handler {
 		cache := new(sync.Map)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

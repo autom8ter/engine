@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/driver"
-	"github.com/autom8ter/engine/listeners"
+	"github.com/autom8ter/engine/servers"
 	"github.com/pkg/errors"
 	"github.com/soheilhy/cmux"
 	"golang.org/x/sync/errgroup"
@@ -16,35 +16,54 @@ import (
 	"syscall"
 )
 
+func init() {
+	var err error
+	pth, err := os.Getwd()
+	if err != nil {
+		pluginPath = os.Getenv("PWD") + "/plugins"
+	} else {
+		pluginPath = pth + "/plugins"
+	}
+}
+
+var pluginPath string
+
+type Engine interface {
+	With(opts ...config.Option) *Runtime
+	Config() *config.Config
+	Serve() error
+	Shutdown()
+}
+
 // Engine is the framework instance.
-type Engine struct {
+type Runtime struct {
 	cfg        *config.Config
 	cancelFunc func()
 }
 
 // New creates a server intstance.
-func (e *Engine) With(opts ...config.Option) *Engine {
-	return &Engine{
+func New(plugins ...driver.Plugin) Engine {
+	return &Runtime{
+		cfg: config.New(plugins...),
+	}
+}
+
+// New creates a server intstance.
+func (e *Runtime) With(opts ...config.Option) *Runtime {
+	return &Runtime{
 		cfg: e.cfg.With(opts),
 	}
 }
 
 // New creates a server intstance.
-func (e *Engine) Config() *config.Config {
+func (e *Runtime) Config() *config.Config {
 	return e.cfg
 }
 
-// New creates a server intstance.
-func New(plugins ...driver.Plugin) *Engine {
-	return &Engine{
-		cfg: config.New(plugins...),
-	}
-}
-
 // Serve starts gRPC and Gateway servers.
-func (e *Engine) Serve() error {
+func (e *Runtime) Serve() error {
 	var (
-		grpcServer, gatewayServer, muxProxy driver.Listener
+		grpcServer, gatewayServer, muxProxy driver.Server
 		grpcLis, gatewayLis, internalLis    net.Listener
 		err                                 error
 	)
@@ -55,7 +74,7 @@ func (e *Engine) Serve() error {
 			return errors.Wrap(err, "failed to listen network for servers")
 		}
 		mux := cmux.New(lis)
-		muxProxy = listeners.NewMuxProxy(mux, lis)
+		muxProxy = servers.NewMuxServer(mux, lis)
 		grpcLis = mux.Match(
 			cmux.HTTP2HeaderField("content-type", "Runtime/grpc"),
 			cmux.HTTP2HeaderField("content-type", "application/grpc"),
@@ -65,7 +84,7 @@ func (e *Engine) Serve() error {
 	}
 
 	// Setup servers
-	grpcServer = listeners.NewGrpcListener(e.cfg)
+	grpcServer = servers.NewGrpcServer(e.cfg)
 
 	// Setup listeners
 	if grpcLis == nil && e.cfg.GrpcAddr != nil {
@@ -77,7 +96,7 @@ func (e *Engine) Serve() error {
 	}
 
 	if e.cfg.GatewayAddr != nil {
-		gatewayServer = listeners.NewGatewayListener(e.cfg)
+		gatewayServer = servers.NewGatewayServer(e.cfg)
 		internalLis, err = e.cfg.GrpcInternalAddr.CreateListener()
 		if err != nil {
 			return errors.Wrap(err, "failed to listen network for gRPC server internal")
@@ -114,7 +133,7 @@ func (e *Engine) Serve() error {
 
 	select {
 	case <-ctx.Done():
-		for _, s := range []driver.Listener{gatewayServer, grpcServer, muxProxy} {
+		for _, s := range []driver.Server{gatewayServer, grpcServer, muxProxy} {
 			if s != nil {
 				s.Shutdown()
 			}
@@ -127,7 +146,7 @@ func (e *Engine) Serve() error {
 }
 
 // Shutdown closes servers.
-func (e *Engine) Shutdown() {
+func (e *Runtime) Shutdown() {
 	if e.cancelFunc != nil {
 		e.cancelFunc()
 	} else {
@@ -135,7 +154,7 @@ func (e *Engine) Shutdown() {
 	}
 }
 
-func (e *Engine) watchShutdownSignal(ctx context.Context) error {
+func (e *Runtime) watchShutdownSignal(ctx context.Context) error {
 	sdCh := make(chan os.Signal, 1)
 	defer close(sdCh)
 	defer signal.Stop(sdCh)
