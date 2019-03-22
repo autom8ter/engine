@@ -45,6 +45,7 @@ func WithServerOptions(opts ...grpc.ServerOption) Option {
 }
 
 // WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
+//ref: https://golang.org/pkg/plugin/
 func WithPluginPaths(paths ...string) Option {
 	return func(c *Config) {
 		c.Paths = append(c.Paths, paths...)
@@ -52,6 +53,7 @@ func WithPluginPaths(paths ...string) Option {
 }
 
 // WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
+// See driver.Plugin for the interface definition.
 func WithGoPlugins(svrs ...driver.Plugin) Option {
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, svrs...)
@@ -61,14 +63,16 @@ func WithGoPlugins(svrs ...driver.Plugin) Option {
 	}
 }
 
-// WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
+// WithPluginSymbol sets the symbol/variable name that the engine will use to lookup and load plugins see.
+// ref: https://golang.org/pkg/plugin/
 func WithPluginSymbol(sym string) Option {
 	return func(c *Config) {
+		viper.Set("symbol", sym)
 		c.Symbol = sym
 	}
 }
 
-// WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
+// WithEnvPrefix sets the environment prefix when searching for environmental variables
 func WithEnvPrefix(prefix string) Option {
 	return func(c *Config) {
 		util.Debugf("loading environmental variables with prefix: %s\n", prefix)

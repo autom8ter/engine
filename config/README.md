@@ -20,6 +20,10 @@ type Config struct {
 }
 ```
 
+Config contains configurations of gRPC and Gateway server. A new instance of
+Config is created from your config.yaml|config.json file in your current working
+directory Network, Address, and Paths can be set in your config file to set the
+Config instance. Otherwise, defaults are set.
 
 #### func  New
 
@@ -58,8 +62,8 @@ Option configures a gRPC and a gateway server.
 ```go
 func WithEnvPrefix(prefix string) Option
 ```
-WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
-engine runtime as opposed to go/plugins.
+WithEnvPrefix sets the environment prefix when searching for environmental
+variables
 
 #### func  WithGoPlugins
 
@@ -67,7 +71,8 @@ engine runtime as opposed to go/plugins.
 func WithGoPlugins(svrs ...driver.Plugin) Option
 ```
 WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
-engine runtime as opposed to go/plugins.
+engine runtime as opposed to go/plugins. See driver.Plugin for the interface
+definition.
 
 #### func  WithNetwork
 
@@ -82,14 +87,15 @@ WithNetwork returns an Option that sets an network address for a gRPC server.
 func WithPluginPaths(paths ...string) Option
 ```
 WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
+ref: https://golang.org/pkg/plugin/
 
 #### func  WithPluginSymbol
 
 ```go
 func WithPluginSymbol(sym string) Option
 ```
-WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
-engine runtime as opposed to go/plugins.
+WithPluginSymbol sets the symbol/variable name that the engine will use to
+lookup and load plugins see. ref: https://golang.org/pkg/plugin/
 
 #### func  WithServerOptions
 

@@ -26,18 +26,8 @@ func init() {
 	}
 }
 
-//
-//
-/*
-Defaults:
-network: "tcp"
-address: ":3000"
-symbol: "
-
-Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
-Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
-*/
-
+// Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
+// Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
 type Config struct {
 	Network            string   `mapstructure:"network" json:"network"`
 	Address            string   `mapstructure:"address" json:"address"`
@@ -61,7 +51,7 @@ func New() *Config {
 	return cfg
 }
 
-//CreateListener creates a network listener for the grpc server from the netowork address
+// CreateListener creates a network listener for the grpc server from the netowork address
 func (c *Config) CreateListener() (net.Listener, error) {
 	if c.Network == "unix" {
 		dir := filepath.Dir(c.Address)
@@ -82,7 +72,7 @@ func (c *Config) CreateListener() (net.Listener, error) {
 	return lis, nil
 }
 
-//With is used to configure/initialize a Config with custom options
+// With is used to configure/initialize a Config with custom options
 func (c *Config) With(opts []Option) *Config {
 	for _, f := range opts {
 		f(c)

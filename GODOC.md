@@ -22,7 +22,7 @@ type Engine interface {
 ```go
 func New() Engine
 ```
-New creates a server intstance.
+New creates a engine intstance.
 
 #### type Runtime
 
@@ -38,25 +38,26 @@ Engine is the framework instance.
 ```go
 func (e *Runtime) Config() *config.Config
 ```
-New creates a server intstance.
+Config returns the runtimes current configuration
 
 #### func (*Runtime) Serve
 
 ```go
 func (e *Runtime) Serve() error
 ```
-Serve starts gRPC and Gateway servers.
+Serve starts the runtime gRPC server.
 
 #### func (*Runtime) Shutdown
 
 ```go
 func (e *Runtime) Shutdown()
 ```
-Shutdown closes servers.
+Shutdown gracefully closes the grpc server.
 
 #### func (*Runtime) With
 
 ```go
 func (e *Runtime) With(opts ...config.Option) *Runtime
 ```
-New creates a server intstance.
+With wraps the runtimes config with config options ref:
+github.com/autom8ter/engine/config/options.go

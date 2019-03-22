@@ -24,26 +24,27 @@ type Runtime struct {
 	cancelFunc func()
 }
 
-// New creates a server intstance.
+// New creates a engine intstance.
 func New() Engine {
 	return &Runtime{
 		cfg: config.New(),
 	}
 }
 
-// New creates a server intstance.
+// With wraps the runtimes config with config options
+// ref: github.com/autom8ter/engine/config/options.go
 func (e *Runtime) With(opts ...config.Option) *Runtime {
 	return &Runtime{
 		cfg: e.cfg.With(opts),
 	}
 }
 
-// New creates a server intstance.
+// Config returns the runtimes current configuration
 func (e *Runtime) Config() *config.Config {
 	return e.cfg
 }
 
-// Serve starts gRPC and Gateway servers.
+// Serve starts the runtime gRPC server.
 func (e *Runtime) Serve() error {
 	grpcServer := servers.NewGrpcServer(e.cfg)
 	lis, err := e.cfg.CreateListener()
@@ -55,7 +56,7 @@ func (e *Runtime) Serve() error {
 	return errors.WithStack(err)
 }
 
-// Shutdown closes servers.
+// Shutdown gracefully closes the grpc server.
 func (e *Runtime) Shutdown() {
 	e.cancelFunc()
 }

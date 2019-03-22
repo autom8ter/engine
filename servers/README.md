@@ -5,6 +5,13 @@
 
 ## Usage
 
+#### func  NewGrpcServer
+
+```go
+func NewGrpcServer(c *config.Config) driver.Server
+```
+NewGrpcServer creates a new GrpcServer instance.
+
 #### type GrpcServer
 
 ```go
@@ -20,29 +27,11 @@ GrpcServer wraps grpc.Server setup process.
 ```go
 func (s *GrpcServer) Serve(l net.Listener) error
 ```
-Serve implements Server.Shutdown
+Serve implements Server.Serve for starting the grpc server
 
 #### func (*GrpcServer) Shutdown
 
 ```go
 func (s *GrpcServer) Shutdown()
 ```
-Shutdown implements Server.Shutdown
-
-#### type Server
-
-```go
-type Server interface {
-	Serve(l net.Listener) error
-	Shutdown()
-}
-```
-
-Server provides an interface for starting and stopping the grpc server.
-
-#### func  NewGrpcServer
-
-```go
-func NewGrpcServer(c *config.Config) Server
-```
-NewGrpcServer creates GrpcServer instance.
+Shutdown implements Server.Shutdown for gracefully shutting down the grpc server

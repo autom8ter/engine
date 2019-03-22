@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 )
 
+// ChannelzClient creates a new grpc channelz client for connecting to a registered channelz server for debugging.
 func ChannelzClient(addr string) channelz.ChannelzClient {
 	c, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
