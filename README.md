@@ -48,6 +48,8 @@ func main() {
 		config.WithStreamInterceptors(),
 		//add unary interceptors to all plugins(variadic) metrics, tracing, retry, auth, etc
 		config.WithUnaryInterceptors(),
+		//Only necessary if not using a config file(./config.json|config.yaml)
+		config.WithDebug(),
 
 	).Serve(); err != nil {
 		//start server and fail if error
@@ -68,7 +70,7 @@ func main() {
     + [Key Functions:](#key-functions-)
     + [Example(recovery):](#example-recovery--)
   * [EngineCtl (cli)](#enginectl--cli-)
-  * [Limitations (cli)](#enginectl--cli-)
+  * [Limitations](#limitations)
   
 
 ## Overview
@@ -269,7 +271,7 @@ ENTRYPOINT [ "enginectl", "init"]
 ----------------------------------------------------------------------------
 
 Current Config:
-map[debug:true address::3000 network:tcp paths:[bin/example.plugin] symbol:Plugin]
+map[paths:[bin/example.plugin] symbol:Plugin debug:true address::3000 network:tcp]
 ----------------------------------------------------------------------------
 
 Usage:
@@ -285,17 +287,21 @@ Flags:
 Use "enginectl [command] --help" for more information about a command.
 
 
+
 ```
     output:
-    INFO: 2019/03/22 14:46:49 using config file: /Users/XXX/go/src/github.com/autom8ter/engine/config.json
-    INFO: 2019/03/22 14:46:49 creating server config from config file
-    INFO: 2019/03/22 14:46:49 registered paths: [bin/example.plugin]
-    INFO: 2019/03/22 14:46:49 registered plugin: *main.Example
-    INFO: 2019/03/22 14:46:49 creating grpc server
-    INFO: 2019/03/22 14:46:49 registered server reflection
-    INFO: 2019/03/22 14:46:49 plugin count: 1
-    INFO: 2019/03/22 14:46:49 creating server listener tcp :3000
-    INFO: 2019/03/22 14:46:49 gRPC server is starting [::]:3000
+    INFO: 2019/03/22 16:24:14 using config file: /Users/coleman/go/src/github.com/autom8ter/engine/config.json
+    INFO: 2019/03/22 16:24:14 creating server config from config file
+    INFO: 2019/03/22 16:24:14 registered paths: [bin/example.plugin]
+    INFO: 2019/03/22 16:24:14 registered plugin: *main.Example
+    INFO: 2019/03/22 16:24:14 loading environmental variables with prefix: 
+    INFO: 2019/03/22 16:24:14 setting environmental key replacer: replace: . with: _
+    INFO: 2019/03/22 16:24:14 set plugin symbol: Plugin
+    INFO: 2019/03/22 16:24:14 creating grpc server
+    INFO: 2019/03/22 16:24:14 registered server reflection
+    INFO: 2019/03/22 16:24:14 plugin count: 1
+    INFO: 2019/03/22 16:24:14 creating server listener tcp :3000
+    INFO: 2019/03/22 16:24:14 gRPC server is starting [::]:3000
 
 ## Limitations
 
