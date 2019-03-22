@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/autom8ter/engine"
 	"github.com/autom8ter/engine/config"
-	"github.com/autom8ter/engine/lib/examplepb/client"
+	"github.com/autom8ter/engine/examples/examplepb/client"
 	"github.com/autom8ter/util"
 	"github.com/grpc-ecosystem/grpc-gateway/examples/proto/examplepb"
 	"github.com/spf13/viper"
@@ -18,7 +18,6 @@ func TestClient(t *testing.T) {
 		config.WithPluginPaths("bin/example.plugin"),
 		config.WithPluginSymbol("Plugin"),
 		config.WithEnvPrefix("ENGINE"),
-
 	)
 	go eng.Serve()
 	var grpcCli = client.ExampleClient(viper.GetString("address"))

@@ -2,7 +2,7 @@ package servers
 
 import (
 	"github.com/autom8ter/engine/config"
-	"github.com/autom8ter/engine/lib/util"
+	"github.com/autom8ter/engine/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"

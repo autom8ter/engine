@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/autom8ter/engine/driver"
-	"github.com/autom8ter/engine/lib/util"
+	"github.com/autom8ter/engine/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
