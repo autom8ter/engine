@@ -1,35 +1,38 @@
 package plugin
 
 import (
-	"fmt"
 	"github.com/autom8ter/engine/driver"
+	"github.com/autom8ter/engine/lib/util"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/grpclog"
-	"os"
 	"plugin"
 )
+
+func init() {
+	viper.SetDefault("symbol", "Plugin")
+}
 
 func LoadPlugins() []driver.Plugin {
 	var plugs = []driver.Plugin{}
 	for _, p := range viper.GetStringSlice("paths") {
+
+		util.Debugf("registered paths: %v\n", viper.GetStringSlice("paths"))
 		plug, err := plugin.Open(p)
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			grpclog.Fatalln(err.Error())
 		}
-		sym, err := plug.Lookup("Plugin")
+		sym, err := plug.Lookup(viper.GetString("symbol"))
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			grpclog.Fatalln(err.Error())
 		}
-		var myPlugin driver.Plugin
-		myPlugin, ok := sym.(driver.Plugin)
+
+		var asPlugin driver.Plugin
+		asPlugin, ok := sym.(driver.Plugin)
 		if !ok {
-			fmt.Printf("provided plugin: %T does not satisfy Plugin interface\n", sym)
-			os.Exit(1)
+			grpclog.Fatalf("provided plugin: %T does not satisfy Plugin interface\n", sym)
 		} else {
-			grpclog.Infof("registered plugin: %T\n", sym)
-			plugs = append(plugs, myPlugin)
+			util.Debugf("registered plugin: %T\n", sym)
+			plugs = append(plugs, asPlugin)
 		}
 	}
 

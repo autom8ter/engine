@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/autom8ter/engine/driver"
+	"github.com/autom8ter/engine/lib/util"
 	"github.com/autom8ter/engine/plugin"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -12,26 +13,12 @@ import (
 	"path/filepath"
 )
 
-func init() {
-	grpclog.SetLoggerV2(grpclog.NewLoggerV2(os.Stdout, os.Stdout, os.Stdout))
-	viper.AutomaticEnv()
-	viper.AddConfigPath(".")
-	viper.SetDefault("network", "tcp")
-	viper.SetDefault("address", ":3000")
-	if err := viper.ReadInConfig(); err != nil {
-		grpclog.Warningln(err.Error())
-	} else {
-		grpclog.Infof("using config file: %s\n", viper.ConfigFileUsed())
-	}
-}
-
 //
 //
 /*
 Defaults:
 network: "tcp"
 address: ":3000"
-paths: ""
 
 Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
 Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
@@ -51,6 +38,7 @@ type Config struct {
 // use the With method to continue to modify the resulting Config object
 func New() *Config {
 	cfg := &Config{}
+	util.Debugln("creating server config from config file")
 	if err := viper.Unmarshal(cfg); err != nil {
 		grpclog.Fatal(err.Error())
 	}
@@ -71,6 +59,7 @@ func (c *Config) CreateListener() (net.Listener, error) {
 			return nil, errors.Errorf("file %q already exists", dir)
 		}
 	}
+	util.Debugf("creating server listener %s %s\n", c.Network, c.Address)
 	lis, err := net.Listen(c.Network, c.Address)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to listen %s %s", c.Network, c.Address)

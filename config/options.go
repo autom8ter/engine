@@ -49,12 +49,6 @@ func WithPluginPaths(paths ...string) Option {
 	}
 }
 
-func WithChannelz() Option {
-	return func(config *Config) {
-		config.Plugins = append(config.Plugins)
-	}
-}
-
 // WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
 func WithGoPlugins(svrs ...driver.Plugin) Option {
 	return func(c *Config) {

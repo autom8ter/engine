@@ -3,5 +3,7 @@
   "network": "tcp",
   "paths": [
     "bin/example.plugin"
-  ]
+  ],
+  "symbol": "Plugin",
+  "debug": "true"
 }

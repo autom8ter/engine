@@ -2,8 +2,8 @@ package servers
 
 import (
 	"github.com/autom8ter/engine/config"
+	"github.com/autom8ter/engine/lib/util"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"net"
@@ -24,10 +24,12 @@ type GrpcServer struct {
 // NewGrpcServer creates GrpcServer instance.
 func NewGrpcServer(c *config.Config) Server {
 	s := grpc.NewServer(c.Option...)
+	util.Debugln("creating grpc server")
 	reflection.Register(s)
-	service.RegisterChannelzServiceToServer(s)
-	for _, svr := range c.Plugins {
+	util.Debugln("registered server reflection")
+	for i, svr := range c.Plugins {
 		svr.RegisterWithServer(s)
+		util.Debugf("plugin count: %v\n", i+1)
 	}
 	return &GrpcServer{
 		server: s,
@@ -37,12 +39,12 @@ func NewGrpcServer(c *config.Config) Server {
 
 // Serve implements Server.Shutdown
 func (s *GrpcServer) Serve(l net.Listener) error {
-	grpclog.Infof("gRPC server is starting %s", l.Addr())
+	grpclog.Infof("gRPC server is starting %s\n", l.Addr())
 	return s.server.Serve(l)
 }
 
 // Shutdown implements Server.Shutdown
 func (s *GrpcServer) Shutdown() {
-	grpclog.Infof("shutting down grpc server...")
+	grpclog.Infoln("shutting down grpc server...")
 	s.server.GracefulStop()
 }

@@ -3,3 +3,4 @@ vendor
 tmp
 bin/enginectl
 bin/enginectl_darwin
+release

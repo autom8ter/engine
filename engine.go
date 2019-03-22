@@ -50,7 +50,6 @@ func (e *Runtime) Serve() error {
 	if err != nil {
 		grpclog.Fatal(err.Error())
 	}
-
 	err = grpcServer.Serve(lis)
 
 	return errors.WithStack(err)
@@ -58,11 +57,7 @@ func (e *Runtime) Serve() error {
 
 // Shutdown closes servers.
 func (e *Runtime) Shutdown() {
-	if e.cancelFunc != nil {
-		e.cancelFunc()
-	} else {
-		grpclog.Warning("the server has been started yet")
-	}
+	e.cancelFunc()
 }
 
 func (e *Runtime) watchShutdownSignal(ctx context.Context) error {
