@@ -54,7 +54,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/autom8ter/engine/servers/grpc.go (0.0%)</option>
+				<option value="file0">github.com/autom8ter/engine/servers/grpc.go (83.3%)</option>
 				
 				</select>
 			</div>
@@ -87,7 +87,7 @@ type GrpcServer struct {
 }
 
 // NewGrpcServer creates a new GrpcServer instance.
-func NewGrpcServer(c *config.Config) driver.Server <span class="cov0" title="0">{
+func NewGrpcServer(c *config.Config) driver.Server <span class="cov8" title="1">{
         s := grpc.NewServer(c.Option...)
         util.Debugln("creating grpc server")
         reflection.Register(s)
@@ -96,20 +96,20 @@ func NewGrpcServer(c *config.Config) driver.Server <span class="cov0" title="0">
                 svr.RegisterWithServer(s)
                 util.Debugf("plugin count: %v\n", i+1)
         }</span>
-        <span class="cov0" title="0">return &amp;GrpcServer{
+        <span class="cov8" title="1">return &amp;GrpcServer{
                 server: s,
                 Config: c,
         }</span>
 }
 
 // Serve implements Server.Serve for starting the grpc server
-func (s *GrpcServer) Serve(l net.Listener) error <span class="cov0" title="0">{
+func (s *GrpcServer) Serve(l net.Listener) error <span class="cov8" title="1">{
         grpclog.Infof("gRPC server is starting %s\n", l.Addr())
         return s.server.Serve(l)
 }</span>
 
 // Shutdown implements Server.Shutdown for gracefully shutting down the grpc server
-func (s *GrpcServer) Shutdown() <span class="cov0" title="0">{
+func (s *GrpcServer) Shutdown() <span class="cov8" title="1">{
         grpclog.Infoln("shutting down grpc server...")
         s.server.GracefulStop()
 }</span>
