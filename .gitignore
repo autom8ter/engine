@@ -2,4 +2,4 @@ vendor
 .idea
 tmp
 bin/enginectl
-bin/enginectl-darwin
+bin/enginectl_darwin

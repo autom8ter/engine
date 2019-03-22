@@ -2,12 +2,17 @@ package servers
 
 import (
 	"github.com/autom8ter/engine/config"
-	"github.com/autom8ter/engine/driver"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"net"
 )
+
+//Server provides an interface for starting and stopping the grpc server.
+type Server interface {
+	Serve(l net.Listener) error
+	Shutdown()
+}
 
 // GrpcServer wraps grpc.Server setup process.
 type GrpcServer struct {
@@ -16,7 +21,7 @@ type GrpcServer struct {
 }
 
 // NewGrpcServer creates GrpcServer instance.
-func NewGrpcServer(c *config.Config) driver.Server {
+func NewGrpcServer(c *config.Config) Server {
 	s := grpc.NewServer(c.Option...)
 	reflection.Register(s)
 	for _, svr := range c.Plugins {

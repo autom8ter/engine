@@ -102,12 +102,13 @@ func main() {
 - [ ] Codegen: Google Endpoints Deployment
 - [ ] Codegen: AWS API Gateway Deployment
 
-## Plugin Interface
+## Driver
 
-Used to register grpc server implementations. It is 
+driver.Plugin is used to register grpc server implementations.
 
 ```go
-// Plugin is an interface for representing gRPC server implementations.
+
+//Plugin is an interface for representing gRPC server implementations.
 type Plugin interface {
 	RegisterWithServer(*grpc.Server)
 }
@@ -115,6 +116,7 @@ type Plugin interface {
 //PluginFunc implements the Plugin interface.
 type PluginFunc func(*grpc.Server)
 
+//RegisterWithServer is an interface for representing gRPC server implementations.
 func (p PluginFunc) RegisterWithServer(s *grpc.Server) {
 	p(s)
 }
@@ -136,7 +138,8 @@ example:
   "address": ":3000",
   "network": "tcp",
   "paths": [
-    "plugins/example.plugin"
+    "bin/example.plugin",
+    "bin/channelz.plugin"
   ]
 }
 
@@ -237,13 +240,14 @@ Example Json Config:
   "address": ":3000",
   "network": "tcp",
   "paths": [
-    "plugins/example.plugin"
+    "bin/example.plugin",
+    "bin/channelz.plugin"
   ]
 }
 ----------------------------------------------------------------------------
 Current Config:
-map[network:tcp paths:[plugins/example.plugin] address::3000]
 
+----------------------------------------------------------------------------
 Usage:
   enginectl [command]
 
