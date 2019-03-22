@@ -1,6 +1,8 @@
 package config_test
 
 import (
+	"errors"
+	"fmt"
 	"github.com/autom8ter/engine/config"
 	"github.com/spf13/viper"
 	"reflect"
@@ -16,7 +18,6 @@ func TestNew(t *testing.T) {
 }
 
 func TestWith(t *testing.T) {
-	TestNew(t)
 	c.With(
 		config.WithDebug(),
 		config.WithEnvPrefix("ENGINE"),
@@ -30,6 +31,17 @@ func TestWith(t *testing.T) {
 	expect("network", "tcp", viper.GetString("network"), t)
 	expect("address", ":3001", viper.GetString("address"), t)
 
+}
+
+func TestConfig_CreateListener(t *testing.T) {
+	lis, err := c.CreateListener()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	if lis == nil {
+		t.Fatal(errors.New("nil listener"))
+	}
+	fmt.Println(lis.Addr())
 }
 
 func expect(key string, exp, got interface{}, t *testing.T) {
