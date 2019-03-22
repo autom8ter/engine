@@ -1,24 +1,3 @@
-/*
-Example plugin:
-
-```
-var Plugin  Example
-
-type Example struct {
-	driver.PluginFunc
-}
-
-func NewExample() *Example {
-	e := &Example{}
-	e.PluginFunc = func(s *grpc.Server) {
-		examplepb.RegisterEchoServiceServer(s, e)
-	}
-	return e
-}
-```
-
-*/
-
 package driver
 
 import (

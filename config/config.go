@@ -13,6 +13,7 @@ import (
 )
 
 func init() {
+	grpclog.SetLoggerV2(grpclog.NewLoggerV2(os.Stdout, os.Stdout, os.Stdout))
 	viper.AutomaticEnv()
 	viper.AddConfigPath(".")
 	viper.SetDefault("network", "tcp")
@@ -75,4 +76,12 @@ func (c *Config) CreateListener() (net.Listener, error) {
 		return nil, errors.Wrapf(err, "failed to listen %s %s", c.Network, c.Address)
 	}
 	return lis, nil
+}
+
+//With is used to configure/initialize a Config with custom options
+func (c *Config) With(opts []Option) *Config {
+	for _, f := range opts {
+		f(c)
+	}
+	return c
 }

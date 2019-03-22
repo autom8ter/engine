@@ -17,4 +17,5 @@ require (
 	github.com/spf13/viper v1.3.2
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
 	google.golang.org/grpc v1.19.0
+	honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099
 )

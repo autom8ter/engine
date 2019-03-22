@@ -3,7 +3,7 @@ package engine_test
 import (
 	"context"
 	"fmt"
-	examplepb1 "github.com/autom8ter/engine/testing/examplepb"
+	"github.com/autom8ter/engine/lib/examplepb/client"
 	"github.com/autom8ter/util"
 	"github.com/grpc-ecosystem/grpc-gateway/examples/proto/examplepb"
 	"github.com/spf13/viper"
@@ -23,7 +23,7 @@ var eng = engine.New().With(
 */
 var addr = viper.GetString("address")
 
-var grpcCli = examplepb1.GRPCClient(addr)
+var grpcCli = client.ExampleClient(addr)
 
 func TestNewEngine(t *testing.T) {
 	resp, err := grpcCli.EchoBody(context.Background(), &examplepb.SimpleMessage{
