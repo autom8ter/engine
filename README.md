@@ -128,9 +128,11 @@ func (p PluginFunc) RegisterWithServer(s *grpc.Server) {
 - Config files must be either config.json or config.yaml in your current working directory
 
 Variables:
-- address: address to listen on
-- network: tcp/unix
+- address: address to listen on, default: :3000
+- network: tcp/unix, default: tcp
 - paths: paths to generated plugin files to load
+- symbol: exported plugin variable name, default: Plugin
+- debug: enable verbose logging for development
 
 example:
 ```json
@@ -138,9 +140,10 @@ example:
   "address": ":3000",
   "network": "tcp",
   "paths": [
-    "bin/example.plugin",
-    "bin/channelz.plugin"
-  ]
+    "bin/example.plugin"
+  ],
+  "symbol": "Plugin",
+  "debug": "true"
 }
 
 ```
@@ -223,21 +226,45 @@ Download:
 go get github.com/autom8ter/engine/enginectl
 
 ----------------------------------------------------------------------------
-Expected Plugin Export Name:
-Plugin
+Configuration:
+
+- Config files must be either config.json or config.yaml in your current working directory
+
+Variables:
+- address: address to listen on, default: :3000
+- network: tcp/unix, default: tcp
+- paths: paths to generated plugin files to load
+- symbol: exported plugin variable name, default: Plugin
+- debug: enable verbose logging for development
+
+example:
+
+{
+  "address": ":3000",
+  "network": "tcp",
+  "paths": [
+    "bin/example.plugin"
+  ],
+  "symbol": "Plugin",
+  "debug": "true"
+}
+
 ----------------------------------------------------------------------------
 How to build go/plugins:
 go build -buildmode=plugin -o ../bin/example.plugin examplepb/plugin.go
 ----------------------------------------------------------------------------
-Docker:
-- RUN go get github.com/autom8ter/engine/enginectl
-- COPY plugins/example.plugin /plugins
-- COPY config.json .
-- ENTRYPOINT [ "enginectl", "init"] 
+Example Dockerfile
+
+FROM golang:1.11
+RUN go get github.com/autom8ter/engine/enginectl
+COPY bin/example.plugin .
+COPY config.json .
+ENTRYPOINT [ "enginectl", "init"] 
+
 ----------------------------------------------------------------------------
 
 Current Config:
-map[paths:[bin/example.plugin] address::3000 network:tcp]
+map[debug:true address::3000 network:tcp paths:[bin/example.plugin] symbol:Plugin]
 ----------------------------------------------------------------------------
 
 Usage:
@@ -254,9 +281,14 @@ Use "enginectl [command] --help" for more information about a command.
 
 
 ```
-
-    enginectl serve
-
     output:
-    INFO: 2019/03/21 18:56:28 registered plugin: *main.Example
-    INFO: 2019/03/21 18:56:28 gRPC server is starting [::]:3000
+    INFO: 2019/03/22 14:46:49 using config file: /Users/XXX/go/src/github.com/autom8ter/engine/config.json
+    INFO: 2019/03/22 14:46:49 creating server config from config file
+    INFO: 2019/03/22 14:46:49 registered paths: [bin/example.plugin]
+    INFO: 2019/03/22 14:46:49 registered plugin: *main.Example
+    INFO: 2019/03/22 14:46:49 creating grpc server
+    INFO: 2019/03/22 14:46:49 registered server reflection
+    INFO: 2019/03/22 14:46:49 plugin count: 1
+    INFO: 2019/03/22 14:46:49 creating server listener tcp :3000
+    INFO: 2019/03/22 14:46:49 gRPC server is starting [::]:3000
+

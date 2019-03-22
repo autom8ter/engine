@@ -47,17 +47,41 @@ Download:
 go get github.com/autom8ter/engine/enginectl
 
 ----------------------------------------------------------------------------
-Expected Plugin Export Name:
-Plugin
+Configuration:
+
+- Config files must be either config.json or config.yaml in your current working directory
+
+Variables:
+- address: address to listen on, default: :3000
+- network: tcp/unix, default: tcp
+- paths: paths to generated plugin files to load
+- symbol: exported plugin variable name, default: Plugin
+- debug: enable verbose logging for development
+
+example:
+
+{
+  "address": ":3000",
+  "network": "tcp",
+  "paths": [
+    "bin/example.plugin"
+  ],
+  "symbol": "Plugin",
+  "debug": "true"
+}
+
 ----------------------------------------------------------------------------
 How to build go/plugins:
 go build -buildmode=plugin -o ../bin/example.plugin examplepb/plugin.go
 ----------------------------------------------------------------------------
-Docker:
-- RUN go get github.com/autom8ter/engine/enginectl
-- COPY plugins/example.plugin /plugins
-- COPY config.json .
-- ENTRYPOINT [ "enginectl", "init"] 
+Example Dockerfile
+
+FROM golang:1.11
+RUN go get github.com/autom8ter/engine/enginectl
+COPY bin/example.plugin .
+COPY config.json .
+ENTRYPOINT [ "enginectl", "init"] 
+
 ----------------------------------------------------------------------------
 
 Current Config:
