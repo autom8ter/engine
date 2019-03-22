@@ -23,6 +23,7 @@ func TestDebugf(t *testing.T) {
 		t.Fatal("expected debug false")
 	}
 }
+
 func TestDebugln(t *testing.T) {
 	viper.Set("debug", true)
 	if !viper.GetBool("debug") {

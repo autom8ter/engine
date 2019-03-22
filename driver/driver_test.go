@@ -2,7 +2,7 @@ package driver_test
 
 import (
 	"github.com/autom8ter/engine/driver"
-	"github.com/autom8ter/engine/mock"
+	"github.com/autom8ter/engine/examples/examplepb/mock"
 	"google.golang.org/grpc"
 	"testing"
 )
