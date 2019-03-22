@@ -54,7 +54,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/autom8ter/engine/config/config.go (50.0%)</option>
+				<option value="file0">github.com/autom8ter/engine/config/config.go (66.7%)</option>
 				
 				<option value="file1">github.com/autom8ter/engine/config/options.go (96.8%)</option>
 				
@@ -82,7 +82,6 @@ import (
         "net"
         "os"
         "path/filepath"
-        "plugin"
 )
 
 func init() <span class="cov8" title="1">{
@@ -119,7 +118,7 @@ func New() *Config <span class="cov8" title="1">{
         if err := viper.Unmarshal(cfg); err != nil </span><span class="cov0" title="0">{
                 grpclog.Fatal(err.Error())
         }</span>
-        <span class="cov8" title="1">cfg.Plugins = loadPlugins()
+        <span class="cov8" title="1">cfg.Plugins = util.LoadPlugins()
         return cfg</span>
 }
 
@@ -150,32 +149,6 @@ func (c *Config) With(opts ...Option) *Config <span class="cov8" title="1">{
                 f(c)
         }</span>
         <span class="cov8" title="1">return c</span>
-}
-
-func loadPlugins() []driver.Plugin <span class="cov8" title="1">{
-        var plugs = []driver.Plugin{}
-        for _, p := range viper.GetStringSlice("paths") </span><span class="cov0" title="0">{
-                util.Debugf("registered paths: %v\n", viper.GetStringSlice("paths"))
-                plug, err := plugin.Open(p)
-                if err != nil </span><span class="cov0" title="0">{
-                        grpclog.Fatalln(err.Error())
-                }</span>
-                <span class="cov0" title="0">sym, err := plug.Lookup(viper.GetString("symbol"))
-                if err != nil </span><span class="cov0" title="0">{
-                        grpclog.Fatalln(err.Error())
-                }</span>
-
-                <span class="cov0" title="0">var asPlugin driver.Plugin
-                asPlugin, ok := sym.(driver.Plugin)
-                if !ok </span><span class="cov0" title="0">{
-                        grpclog.Fatalf("provided plugin: %T does not satisfy Plugin interface\n", sym)
-                }</span> else<span class="cov0" title="0"> {
-                        util.Debugf("registered plugin: %T\n", sym)
-                        plugs = append(plugs, asPlugin)
-                }</span>
-        }
-
-        <span class="cov8" title="1">return plugs</span>
 }
 </pre>
 		

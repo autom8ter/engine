@@ -54,7 +54,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/autom8ter/engine/util/util.go (37.5%)</option>
+				<option value="file0">github.com/autom8ter/engine/util/util.go (70.8%)</option>
 				
 				</select>
 			</div>
@@ -71,14 +71,16 @@
 		<pre class="file" id="file0" style="display: none">package util
 
 import (
+        "github.com/autom8ter/engine/driver"
         "github.com/spf13/viper"
         "google.golang.org/grpc"
         channelz "google.golang.org/grpc/channelz/grpc_channelz_v1"
         "google.golang.org/grpc/grpclog"
+        "plugin"
 )
 
 // Debugf is grpclog.Infof(format, args...) but only executes if debug=true is set in your config or environmental variables
-func Debugf(format string, args ...interface{}) <span class="cov0" title="0">{
+func Debugf(format string, args ...interface{}) <span class="cov8" title="1">{
         if viper.GetBool("debug") </span><span class="cov0" title="0">{
                 grpclog.Infof(format, args...)
         }</span>
@@ -98,6 +100,32 @@ func ChannelzClient(addr string) channelz.ChannelzClient <span class="cov8" titl
                 grpclog.Fatalln(err.Error())
         }</span>
         <span class="cov8" title="1">return channelz.NewChannelzClient(c)</span>
+}
+
+func LoadPlugins() []driver.Plugin <span class="cov8" title="1">{
+        var plugs = []driver.Plugin{}
+        for _, p := range viper.GetStringSlice("paths") </span><span class="cov8" title="1">{
+                Debugf("registered paths: %v\n", viper.GetStringSlice("paths"))
+                plug, err := plugin.Open(p)
+                if err != nil </span><span class="cov0" title="0">{
+                        grpclog.Fatalln(err.Error())
+                }</span>
+                <span class="cov8" title="1">sym, err := plug.Lookup(viper.GetString("symbol"))
+                if err != nil </span><span class="cov0" title="0">{
+                        grpclog.Fatalln(err.Error())
+                }</span>
+
+                <span class="cov8" title="1">var asPlugin driver.Plugin
+                asPlugin, ok := sym.(driver.Plugin)
+                if !ok </span><span class="cov0" title="0">{
+                        grpclog.Fatalf("provided plugin: %T does not satisfy Plugin interface\n", sym)
+                }</span> else<span class="cov8" title="1"> {
+                        Debugf("registered plugin: %T\n", sym)
+                        plugs = append(plugs, asPlugin)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return plugs</span>
 }
 </pre>
 		

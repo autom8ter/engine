@@ -10,7 +10,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"plugin"
 )
 
 func init() {
@@ -47,7 +46,7 @@ func New() *Config {
 	if err := viper.Unmarshal(cfg); err != nil {
 		grpclog.Fatal(err.Error())
 	}
-	cfg.Plugins = loadPlugins()
+	cfg.Plugins = util.LoadPlugins()
 	return cfg
 }
 
@@ -78,30 +77,4 @@ func (c *Config) With(opts ...Option) *Config {
 		f(c)
 	}
 	return c
-}
-
-func loadPlugins() []driver.Plugin {
-	var plugs = []driver.Plugin{}
-	for _, p := range viper.GetStringSlice("paths") {
-		util.Debugf("registered paths: %v\n", viper.GetStringSlice("paths"))
-		plug, err := plugin.Open(p)
-		if err != nil {
-			grpclog.Fatalln(err.Error())
-		}
-		sym, err := plug.Lookup(viper.GetString("symbol"))
-		if err != nil {
-			grpclog.Fatalln(err.Error())
-		}
-
-		var asPlugin driver.Plugin
-		asPlugin, ok := sym.(driver.Plugin)
-		if !ok {
-			grpclog.Fatalf("provided plugin: %T does not satisfy Plugin interface\n", sym)
-		} else {
-			util.Debugf("registered plugin: %T\n", sym)
-			plugs = append(plugs, asPlugin)
-		}
-	}
-
-	return plugs
 }
