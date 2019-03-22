@@ -56,7 +56,7 @@
 				
 				<option value="file0">github.com/autom8ter/engine/config/config.go (50.0%)</option>
 				
-				<option value="file1">github.com/autom8ter/engine/config/options.go (61.3%)</option>
+				<option value="file1">github.com/autom8ter/engine/config/options.go (96.8%)</option>
 				
 				</select>
 			</div>
@@ -205,38 +205,38 @@ func WithNetwork(network, addr string) Option <span class="cov8" title="1">{
 }
 
 // WithUnaryInterceptors returns an Option that sets unary interceptor(s) for a gRPC server.
-func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option <span class="cov0" title="0">{
-        return func(c *Config) </span><span class="cov0" title="0">{
+func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option <span class="cov8" title="1">{
+        return func(c *Config) </span><span class="cov8" title="1">{
                 c.UnaryInterceptors = append(c.UnaryInterceptors, interceptors...)
         }</span>
 }
 
 // WithGrpcServerStreamInterceptors returns an Option that sets stream interceptor(s) for a gRPC server.
-func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option <span class="cov0" title="0">{
-        return func(c *Config) </span><span class="cov0" title="0">{
+func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option <span class="cov8" title="1">{
+        return func(c *Config) </span><span class="cov8" title="1">{
                 c.StreamInterceptors = append(c.StreamInterceptors, interceptors...)
         }</span>
 }
 
 // WithOptions returns an Option that sets grpc.ServerOption(s) to a gRPC server.
-func WithServerOptions(opts ...grpc.ServerOption) Option <span class="cov0" title="0">{
-        return func(c *Config) </span><span class="cov0" title="0">{
+func WithServerOptions(opts ...grpc.ServerOption) Option <span class="cov8" title="1">{
+        return func(c *Config) </span><span class="cov8" title="1">{
                 c.Option = append(c.Option, opts...)
         }</span>
 }
 
 // WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
 //ref: https://golang.org/pkg/plugin/
-func WithPluginPaths(paths ...string) Option <span class="cov0" title="0">{
-        return func(c *Config) </span><span class="cov0" title="0">{
+func WithPluginPaths(paths ...string) Option <span class="cov8" title="1">{
+        return func(c *Config) </span><span class="cov8" title="1">{
                 c.Paths = append(c.Paths, paths...)
         }</span>
 }
 
 // WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
 // See driver.Plugin for the interface definition.
-func WithGoPlugins(svrs ...driver.Plugin) Option <span class="cov0" title="0">{
-        return func(c *Config) </span><span class="cov0" title="0">{
+func WithGoPlugins(svrs ...driver.Plugin) Option <span class="cov8" title="1">{
+        return func(c *Config) </span><span class="cov8" title="1">{
                 c.Plugins = append(c.Plugins, svrs...)
                 if len(c.Plugins) == 0 </span><span class="cov0" title="0">{
                         grpclog.Fatal(errors.New("zero valid plugins registered"))

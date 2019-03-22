@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/autom8ter/engine/config"
+	"github.com/autom8ter/engine/examples/examplepb/mock"
 	"github.com/spf13/viper"
 	"reflect"
 	"testing"
@@ -23,6 +24,11 @@ func TestWith(t *testing.T) {
 		config.WithEnvPrefix("ENGINE"),
 		config.WithPluginSymbol("Random"),
 		config.WithNetwork("tcp", ":3001"),
+		config.WithGoPlugins(mock.NewExample()),
+		config.WithServerOptions(),
+		config.WithStreamInterceptors(),
+		config.WithUnaryInterceptors(),
+		config.WithPluginPaths("bin/example.plugin"),
 	)
 
 	expect("env_prefix", "ENGINE", viper.GetString("env_prefix"), t)
