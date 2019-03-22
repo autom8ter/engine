@@ -37,18 +37,33 @@ var rootCmd = &cobra.Command{
                        888                                    
                   Y8b d88P                                    
                    "Y88P"
+
+Assign individual developers to develop specific plugins and then 
+just add them as a plugin config path. Plugin development is completely
+independent of the runtime NICE.
+
 ----------------------------------------------------------------------------
 Download:
 go get github.com/autom8ter/engine/enginectl
+
 ----------------------------------------------------------------------------
 Expected Plugin Export Name:
 Plugin
+----------------------------------------------------------------------------
+How to build go/plugins:
+
+----------------------------------------------------------------------------
+Docker:
+- RUN go get github.com/autom8ter/engine/enginectl
+- COPY plugins/example.plugin /plugins
+- COPY config.json .
+- ENTRYPOINT [ "enginectl", "init"] 
 ----------------------------------------------------------------------------
 Example Json Config:
 {
   "address": ":3000",
   "network": "tcp",
-  "plugins": [
+  "paths": [
     "plugins/example.plugin"
   ]
 }
@@ -68,5 +83,5 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(serveCmd)
 }

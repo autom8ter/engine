@@ -24,16 +24,30 @@ func init() {
 	}
 }
 
-// Config contains configurations of gRPC and Gateway server.
+//
+//
+/*
+Defaults:
+network: "tcp"
+address: ":3000"
+paths: ""
+
+Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
+Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
+*/
+
 type Config struct {
-	Network            string `mapstructure:"network" json:"network"`
-	Address            string `mapstructure:"address" json:"address"`
+	Network            string   `mapstructure:"network" json:"network"`
+	Address            string   `mapstructure:"address" json:"address"`
+	Paths              []string `mapstructure:"paths" json:"paths"`
 	Plugins            []driver.Plugin
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
 	Option             []grpc.ServerOption
 }
 
+// New creates a config from your config file. If no config file is present, the resulting Config will have the following defaults: netowork: "tcp" address: ":3000"
+// use the With method to continue to modify the resulting Config object
 func New() *Config {
 	cfg := &Config{}
 	if err := viper.Unmarshal(cfg); err != nil {
@@ -43,6 +57,7 @@ func New() *Config {
 	return cfg
 }
 
+//CreateListener creates a network listener for the grpc server from the netowork address
 func (c *Config) CreateListener() (net.Listener, error) {
 	if c.Network == "unix" {
 		dir := filepath.Dir(c.Address)

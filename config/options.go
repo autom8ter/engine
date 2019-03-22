@@ -9,9 +9,14 @@ import (
 	"os"
 )
 
+func init() {
+	grpclog.SetLoggerV2(grpclog.NewLoggerV2(os.Stdout, os.Stdout, os.Stdout))
+}
+
 // Option configures a gRPC and a gateway server.
 type Option func(*Config)
 
+//With is used to configure/initialize a Config with custom options
 func (c *Config) With(opts []Option) *Config {
 	for _, f := range opts {
 		f(c)
@@ -19,7 +24,7 @@ func (c *Config) With(opts []Option) *Config {
 	return c
 }
 
-// WithServers returns an Option that sets gRPC service server implementation(s).
+// WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
 func WithGoPlugins(svrs ...driver.Plugin) Option {
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, svrs...)
@@ -29,7 +34,7 @@ func WithGoPlugins(svrs ...driver.Plugin) Option {
 	}
 }
 
-// WithGrpcAddr returns an Option that sets an network address for a gRPC server.
+// WithNetwork returns an Option that sets an network address for a gRPC server.
 func WithNetwork(network, addr string) Option {
 	viper.Set("network", network)
 	viper.Set("address", addr)
@@ -54,15 +59,15 @@ func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option
 }
 
 // WithOptions returns an Option that sets grpc.ServerOption(s) to a gRPC server.
-func WithOptions(opts ...grpc.ServerOption) Option {
+func WithServerOptions(opts ...grpc.ServerOption) Option {
 	return func(c *Config) {
 		c.Option = append(c.Option, opts...)
 	}
 }
 
-// WithDefaultLogger returns an Option that sets default grpclogger.LoggerV2 object.
-func WithGRPCLogger() Option {
+// WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
+func WithPluginPaths(paths ...string) Option {
 	return func(c *Config) {
-		grpclog.SetLoggerV2(grpclog.NewLoggerV2(os.Stdout, os.Stderr, os.Stderr))
+		c.Paths = append(c.Paths, paths...)
 	}
 }

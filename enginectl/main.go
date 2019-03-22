@@ -14,7 +14,9 @@
 
 package main
 
-import "github.com/autom8ter/engine/enginectl/cmd"
+import (
+	"github.com/autom8ter/engine/enginectl/cmd"
+)
 
 func main() {
 	cmd.Execute()
