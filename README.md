@@ -1,9 +1,5 @@
 # Engine
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> 9b96830f00cb3e8aedba0c535a381c55368ea078
 A Pluggable gRPC Microservice Framework
                
 `go get github.com/autom8ter/engine`
@@ -14,10 +10,6 @@ Contributers: Coleman Word
 
 License: MIT
 
-<<<<<<< HEAD
-```
-```
-=======
 ```go
 //Exported variable named Plugin, used to build with go/plugin
 var Plugin  Example
