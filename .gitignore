@@ -6,3 +6,7 @@ bin/enginectl_darwin
 release
 COVERAGE.txt
 CHECK.txt
+config/COVERAGE.txt
+driver/COVERAGE.txt
+servers/COVERAGE.txt
+util/COVERAGE.txt
