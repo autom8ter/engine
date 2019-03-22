@@ -3,6 +3,8 @@ package engine_test
 import (
 	"context"
 	"fmt"
+	"github.com/autom8ter/engine"
+	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/lib/examplepb/client"
 	"github.com/autom8ter/util"
 	"github.com/grpc-ecosystem/grpc-gateway/examples/proto/examplepb"
@@ -10,22 +12,13 @@ import (
 	"testing"
 )
 
-/*
-var eng = engine.New().With(
-	config.WithDefaultLogger(),
-	config.WithAddr("tcp", ":3000"),
-	config.WithPlugins(),
-	config.WithRouterWare(
-		handlers.DebugWare(),
-		handlers.MetricsWare(),
-	),
-)
-*/
-var addr = viper.GetString("address")
 
-var grpcCli = client.ExampleClient(addr)
-
-func TestNewEngine(t *testing.T) {
+func TestClient(t *testing.T) {
+	var eng = engine.New().With(
+		config.WithNetwork("tcp", ":3000"),
+	)
+	go eng.Serve()
+	var grpcCli = client.ExampleClient(viper.GetString("address"))
 	resp, err := grpcCli.EchoBody(context.Background(), &examplepb.SimpleMessage{
 		Id:  "yoyoyoyoyo",
 		Num: 199,
