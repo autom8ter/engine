@@ -2,7 +2,6 @@
   "address": ":3000",
   "network": "tcp",
   "paths": [
-    "bin/example.plugin",
-    "bin/channelz.plugin"
+    "bin/example.plugin"
   ]
 }

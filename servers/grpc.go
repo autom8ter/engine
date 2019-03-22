@@ -3,6 +3,7 @@ package servers
 import (
 	"github.com/autom8ter/engine/config"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"net"
@@ -24,6 +25,7 @@ type GrpcServer struct {
 func NewGrpcServer(c *config.Config) Server {
 	s := grpc.NewServer(c.Option...)
 	reflection.Register(s)
+	service.RegisterChannelzServiceToServer(s)
 	for _, svr := range c.Plugins {
 		svr.RegisterWithServer(s)
 	}

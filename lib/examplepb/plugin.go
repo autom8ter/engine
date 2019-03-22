@@ -38,4 +38,4 @@ rpc Echo(SimpleMessage) returns (SimpleMessage) {
 		};
 	}
  */
-var Plugin *server.Example
+var Plugin server.Example

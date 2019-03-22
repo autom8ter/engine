@@ -51,7 +51,7 @@ Expected Plugin Export Name:
 Plugin
 ----------------------------------------------------------------------------
 How to build go/plugins:
-
+go build -buildmode=plugin -o ../bin/example.plugin examplepb/plugin.go
 ----------------------------------------------------------------------------
 Docker:
 - RUN go get github.com/autom8ter/engine/enginectl
@@ -59,17 +59,10 @@ Docker:
 - COPY config.json .
 - ENTRYPOINT [ "enginectl", "init"] 
 ----------------------------------------------------------------------------
-Example Json Config:
-{
-  "address": ":3000",
-  "network": "tcp",
-  "paths": [
-    "plugins/example.plugin"
-  ]
-}
-----------------------------------------------------------------------------
+
 Current Config:
 %s
+----------------------------------------------------------------------------
 `, viper.AllSettings()),
 }
 

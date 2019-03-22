@@ -227,27 +227,19 @@ Expected Plugin Export Name:
 Plugin
 ----------------------------------------------------------------------------
 How to build go/plugins:
-
+go build -buildmode=plugin -o ../bin/example.plugin examplepb/plugin.go
 ----------------------------------------------------------------------------
 Docker:
 - RUN go get github.com/autom8ter/engine/enginectl
 - COPY plugins/example.plugin /plugins
 - COPY config.json .
-- ENTRYPOINT [ "enginectl", "serve"] 
+- ENTRYPOINT [ "enginectl", "init"] 
 ----------------------------------------------------------------------------
-Example Json Config:
-{
-  "address": ":3000",
-  "network": "tcp",
-  "paths": [
-    "bin/example.plugin",
-    "bin/channelz.plugin"
-  ]
-}
-----------------------------------------------------------------------------
-Current Config:
 
+Current Config:
+map[paths:[bin/example.plugin] address::3000 network:tcp]
 ----------------------------------------------------------------------------
+
 Usage:
   enginectl [command]
 
@@ -259,6 +251,7 @@ Flags:
   -h, --help   help for enginectl
 
 Use "enginectl [command] --help" for more information about a command.
+
 
 ```
 
