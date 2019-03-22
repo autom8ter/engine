@@ -54,26 +54,56 @@
 			<div id="nav">
 				<select id="files">
 				
+				<option value="file0">github.com/autom8ter/engine/driver/driver.go (100.0%)</option>
+				
 				</select>
 			</div>
 			<div id="legend">
 				<span>not tracked</span>
 			
-				<span class="cov0">no coverage</span>
-				<span class="cov1">low coverage</span>
-				<span class="cov2">*</span>
-				<span class="cov3">*</span>
-				<span class="cov4">*</span>
-				<span class="cov5">*</span>
-				<span class="cov6">*</span>
-				<span class="cov7">*</span>
-				<span class="cov8">*</span>
-				<span class="cov9">*</span>
-				<span class="cov10">high coverage</span>
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
 			
 			</div>
 		</div>
 		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package driver
+
+import (
+        "google.golang.org/grpc"
+)
+
+// Plugin is an interface for representing gRPC server implementations. It is easily satisfied with code generated from
+// the protoc-gen-go grpc tool
+type Plugin interface {
+        RegisterWithServer(*grpc.Server)
+}
+
+// NewPlugin is a helper function to create a Plugin from a PluginFunc
+func NewPlugin(pluginFunc PluginFunc) Plugin <span class="cov8" title="1">{
+        return pluginFunc
+}</span>
+
+// PluginFunc is a typed function that satisfies the Plugin interface. It uses a pattern similar to that of http.Handlerfunc
+// Embed a PluginFunc in a struct to create a Plugin, and then initialize the PluginFunc with the method generated from your .pb file
+type PluginFunc func(s *grpc.Server)
+
+// NewPluginFunc is a helper function to create a PluginFunc
+func NewPluginFunc(fn func(s *grpc.Server)) PluginFunc <span class="cov8" title="1">{
+        return fn
+}</span>
+
+// RegisterWithServer registers a Plugin with a grpc server.
+func (p PluginFunc) RegisterWithServer(s *grpc.Server) <span class="cov8" title="1">{
+        p(s)
+}</span>
+
+func IsPlugin(a interface{}) bool <span class="cov8" title="1">{
+        _, ok := a.(Plugin)
+        return ok
+}</span>
+</pre>
 		
 		</div>
 	</body>
