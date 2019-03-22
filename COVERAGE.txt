@@ -1,0 +1,12 @@
+mode: set
+github.com/autom8ter/engine/engine.go:28.19,32.2 1 1
+github.com/autom8ter/engine/engine.go:35.56,39.2 1 1
+github.com/autom8ter/engine/engine.go:42.43,44.2 1 0
+github.com/autom8ter/engine/engine.go:47.33,50.16 3 1
+github.com/autom8ter/engine/engine.go:53.2,55.30 2 1
+github.com/autom8ter/engine/engine.go:50.16,52.3 1 0
+github.com/autom8ter/engine/engine.go:59.30,61.2 1 0
+github.com/autom8ter/engine/engine.go:63.66,68.9 5 0
+github.com/autom8ter/engine/engine.go:74.2,74.12 1 0
+github.com/autom8ter/engine/engine.go:69.14,70.15 1 0
+github.com/autom8ter/engine/engine.go:71.20,71.20 0 0
