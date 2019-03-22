@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/lib/util"
-	"github.com/autom8ter/engine/plugin"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -11,7 +10,21 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"plugin"
 )
+
+func init() {
+	grpclog.SetLoggerV2(grpclog.NewLoggerV2(os.Stdout, os.Stdout, os.Stdout))
+	viper.AddConfigPath(".")
+	viper.SetDefault("network", "tcp")
+	viper.SetDefault("address", ":3000")
+	viper.SetDefault("symbol", "Plugin")
+	if err := viper.ReadInConfig(); err != nil {
+		grpclog.Warningln(err.Error())
+	} else {
+		grpclog.Infof("using config file: %s\n", viper.ConfigFileUsed())
+	}
+}
 
 //
 //
@@ -19,6 +32,7 @@ import (
 Defaults:
 network: "tcp"
 address: ":3000"
+symbol: "
 
 Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
 Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
@@ -28,6 +42,7 @@ type Config struct {
 	Network            string   `mapstructure:"network" json:"network"`
 	Address            string   `mapstructure:"address" json:"address"`
 	Paths              []string `mapstructure:"paths" json:"paths"`
+	Symbol             string   `mapstructure:"symbol" json:"symbol"`
 	Plugins            []driver.Plugin
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
@@ -42,7 +57,7 @@ func New() *Config {
 	if err := viper.Unmarshal(cfg); err != nil {
 		grpclog.Fatal(err.Error())
 	}
-	cfg.Plugins = plugin.LoadPlugins()
+	cfg.Plugins = loadPlugins()
 	return cfg
 }
 
@@ -73,4 +88,30 @@ func (c *Config) With(opts []Option) *Config {
 		f(c)
 	}
 	return c
+}
+
+func loadPlugins() []driver.Plugin {
+	var plugs = []driver.Plugin{}
+	for _, p := range viper.GetStringSlice("paths") {
+		util.Debugf("registered paths: %v\n", viper.GetStringSlice("paths"))
+		plug, err := plugin.Open(p)
+		if err != nil {
+			grpclog.Fatalln(err.Error())
+		}
+		sym, err := plug.Lookup(viper.GetString("symbol"))
+		if err != nil {
+			grpclog.Fatalln(err.Error())
+		}
+
+		var asPlugin driver.Plugin
+		asPlugin, ok := sym.(driver.Plugin)
+		if !ok {
+			grpclog.Fatalf("provided plugin: %T does not satisfy Plugin interface\n", sym)
+		} else {
+			util.Debugf("registered plugin: %T\n", sym)
+			plugs = append(plugs, asPlugin)
+		}
+	}
+
+	return plugs
 }

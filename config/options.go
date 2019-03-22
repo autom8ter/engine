@@ -2,10 +2,12 @@ package config
 
 import (
 	"github.com/autom8ter/engine/driver"
+	"github.com/autom8ter/engine/lib/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
+	"strings"
 )
 
 // Option configures a gRPC and a gateway server.
@@ -56,5 +58,23 @@ func WithGoPlugins(svrs ...driver.Plugin) Option {
 		if len(c.Plugins) == 0 {
 			grpclog.Fatal(errors.New("zero valid plugins registered"))
 		}
+	}
+}
+
+// WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
+func WithPluginSymbol(sym string) Option {
+	return func(c *Config) {
+		c.Symbol = sym
+	}
+}
+
+// WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
+func WithEnvPrefix(prefix string) Option {
+	return func(c *Config) {
+		util.Debugf("loading environmental variables with prefix: %s\n", prefix)
+		viper.SetEnvPrefix(prefix)
+		util.Debugf("setting environmental key replacer: replace: %s with: %s\n", ".", "_")
+		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+		viper.AutomaticEnv()
 	}
 }

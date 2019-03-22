@@ -19,8 +19,8 @@ type Example struct {
 	driver.PluginFunc
 }
 //
-func NewExample() *Example {
-	e := &Example{}
+func NewExample() Example {
+	e := Example{}
 	e.PluginFunc = func(s *grpc.Server) {
 		examplepb.RegisterEchoServiceServer(s, e)
 	}
@@ -31,19 +31,24 @@ func NewExample() *Example {
 //A basic example with all config options:
 func main() {
 	if err := engine.New().With(
+		//Look for configuration vars in environment with a set prefix.
+	    config.WithEnvPrefix("ENGINE"),
 		//hard coded plugins(not using go/plugins
 		config.WithGoPlugins(),
 		//tcp/unix and port/file, Only necessary if not using a config file(./config.json|config.yaml),  defaults to tcp, :3000
 		config.WithNetwork("tcp", ":8080"),
 		//Only necessary if not using a config file(./config.json|config.yaml) (variadic) no default
 		//how to build: go build -buildmode=plugin -o ./plugins/$TARGETOUTPUT.plugin $TARGETGOFILE.go ref: https://golang.org/pkg/plugin/
-		config.WithPluginPaths(),
+		config.WithPluginPaths("bin/example.plugin"),
+		//Only necessary if not using a config file(./config.json|config.yaml),  defaults to Plugin
+		config.WithPluginSymbol("Plugin"),
 		//add grpc server options (variadic) 
 		config.WithServerOptions(),
 		//add stream interceptors to all plugins(variadic) metrics, tracing, retry, auth, etc
 		config.WithStreamInterceptors(),
 		//add unary interceptors to all plugins(variadic) metrics, tracing, retry, auth, etc
 		config.WithUnaryInterceptors(),
+
 	).Serve(); err != nil {
 		//start server and fail if error
 		grpclog.Fatal(err.Error())
@@ -63,9 +68,9 @@ func main() {
     + [Key Functions:](#key-functions-)
     + [Example(recovery):](#example-recovery--)
   * [EngineCtl (cli)](#enginectl--cli-)
+  * [Limitations (cli)](#enginectl--cli-)
   
 
->>>>>>> 9b96830f00cb3e8aedba0c535a381c55368ea078
 ## Overview
 
 - Engine serves [go/plugins](https://golang.org/pkg/plugin/) that are dynamically loaded at runtime.
@@ -82,7 +87,7 @@ func main() {
 - [x] Support for custom gRPC Server options
 - [x] Support for custom and chained Unary Interceptors
 - [x] Support for custom and chained Stream Interceptors
-- [ ] Good goDoc documentation
+- [ ] GoDoc documentation for every exported Method
 - [ ] 80%+ code coverage
 - [ ] Load go/plugins from paths set in environmental variables
 - [ ] Load go/plugins directly from AWS S3
@@ -292,3 +297,8 @@ Use "enginectl [command] --help" for more information about a command.
     INFO: 2019/03/22 14:46:49 creating server listener tcp :3000
     INFO: 2019/03/22 14:46:49 gRPC server is starting [::]:3000
 
+## Limitations
+
+Im hoping someone can help explain why some of these errors occur:
+- When creating a plugin, one must NOT use pointer methods when satisfying the driver.Plugin interface
+- If a json config is hard-coded as a string, the server fails, but succeeds if it is present as a config file

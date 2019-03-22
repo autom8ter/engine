@@ -12,10 +12,13 @@ import (
 	"testing"
 )
 
-
 func TestClient(t *testing.T) {
 	var eng = engine.New().With(
 		config.WithNetwork("tcp", ":3000"),
+		config.WithPluginPaths("bin/example.plugin"),
+		config.WithPluginSymbol("Plugin"),
+		config.WithEnvPrefix("ENGINE"),
+
 	)
 	go eng.Serve()
 	var grpcCli = client.ExampleClient(viper.GetString("address"))
