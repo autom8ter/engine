@@ -4,3 +4,4 @@ tmp
 bin/enginectl
 bin/enginectl_darwin
 release
+COVERAGE.txt
