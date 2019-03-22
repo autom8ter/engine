@@ -238,7 +238,7 @@ Docker:
 - RUN go get github.com/autom8ter/engine/enginectl
 - COPY plugins/example.plugin /plugins
 - COPY config.json .
-- ENTRYPOINT [ "enginectl", "init"] 
+- ENTRYPOINT [ "enginectl", "serve"] 
 ----------------------------------------------------------------------------
 Example Json Config:
 {
@@ -266,3 +266,8 @@ Use "enginectl [command] --help" for more information about a command.
 
 ```
 
+    enginectl serve
+
+    output:
+    INFO: 2019/03/21 18:56:28 registered plugin: *main.Example
+    INFO: 2019/03/21 18:56:28 gRPC server is starting [::]:3000
