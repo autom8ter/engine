@@ -45,7 +45,7 @@ address
 #### func (*Config) With
 
 ```go
-func (c *Config) With(opts []Option) *Config
+func (c *Config) With(opts ...Option) *Config
 ```
 With is used to configure/initialize a Config with custom options
 

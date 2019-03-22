@@ -35,7 +35,7 @@ func New() Engine {
 // ref: github.com/autom8ter/engine/config/options.go
 func (e *Runtime) With(opts ...config.Option) *Runtime {
 	return &Runtime{
-		cfg: e.cfg.With(opts),
+		cfg: e.cfg.With(opts...),
 	}
 }
 

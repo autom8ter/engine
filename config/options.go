@@ -81,6 +81,7 @@ func WithEnvPrefix(prefix string) Option {
 		util.Debugf("setting environmental key replacer: replace: %s with: %s\n", ".", "_")
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 		viper.AutomaticEnv()
+		viper.Set("env_prefix", prefix)
 	}
 }
 

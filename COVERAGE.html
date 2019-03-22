@@ -105,7 +105,7 @@ func New() Engine <span class="cov8" title="1">{
 // ref: github.com/autom8ter/engine/config/options.go
 func (e *Runtime) With(opts ...config.Option) *Runtime <span class="cov8" title="1">{
         return &amp;Runtime{
-                cfg: e.cfg.With(opts),
+                cfg: e.cfg.With(opts...),
         }
 }</span>
 

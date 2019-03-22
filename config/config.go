@@ -73,7 +73,7 @@ func (c *Config) CreateListener() (net.Listener, error) {
 }
 
 // With is used to configure/initialize a Config with custom options
-func (c *Config) With(opts []Option) *Config {
+func (c *Config) With(opts ...Option) *Config {
 	for _, f := range opts {
 		f(c)
 	}

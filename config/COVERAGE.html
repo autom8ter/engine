@@ -54,26 +54,226 @@
 			<div id="nav">
 				<select id="files">
 				
+				<option value="file0">github.com/autom8ter/engine/config/config.go (39.1%)</option>
+				
+				<option value="file1">github.com/autom8ter/engine/config/options.go (61.3%)</option>
+				
 				</select>
 			</div>
 			<div id="legend">
 				<span>not tracked</span>
 			
-				<span class="cov0">no coverage</span>
-				<span class="cov1">low coverage</span>
-				<span class="cov2">*</span>
-				<span class="cov3">*</span>
-				<span class="cov4">*</span>
-				<span class="cov5">*</span>
-				<span class="cov6">*</span>
-				<span class="cov7">*</span>
-				<span class="cov8">*</span>
-				<span class="cov9">*</span>
-				<span class="cov10">high coverage</span>
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
 			
 			</div>
 		</div>
 		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package config
+
+import (
+        "github.com/autom8ter/engine/driver"
+        "github.com/autom8ter/engine/util"
+        "github.com/pkg/errors"
+        "github.com/spf13/viper"
+        "google.golang.org/grpc"
+        "google.golang.org/grpc/grpclog"
+        "net"
+        "os"
+        "path/filepath"
+        "plugin"
+)
+
+func init() <span class="cov8" title="1">{
+        grpclog.SetLoggerV2(grpclog.NewLoggerV2(os.Stdout, os.Stdout, os.Stdout))
+        viper.AddConfigPath(".")
+        viper.SetDefault("network", "tcp")
+        viper.SetDefault("address", ":3000")
+        viper.SetDefault("symbol", "Plugin")
+        if err := viper.ReadInConfig(); err != nil </span><span class="cov8" title="1">{
+                grpclog.Warningln(err.Error())
+        }</span> else<span class="cov0" title="0"> {
+                grpclog.Infof("using config file: %s\n", viper.ConfigFileUsed())
+        }</span>
+}
+
+// Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
+// Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
+type Config struct {
+        Network            string   `mapstructure:"network" json:"network"`
+        Address            string   `mapstructure:"address" json:"address"`
+        Paths              []string `mapstructure:"paths" json:"paths"`
+        Symbol             string   `mapstructure:"symbol" json:"symbol"`
+        Plugins            []driver.Plugin
+        UnaryInterceptors  []grpc.UnaryServerInterceptor
+        StreamInterceptors []grpc.StreamServerInterceptor
+        Option             []grpc.ServerOption
+}
+
+// New creates a config from your config file. If no config file is present, the resulting Config will have the following defaults: netowork: "tcp" address: ":3000"
+// use the With method to continue to modify the resulting Config object
+func New() *Config <span class="cov8" title="1">{
+        cfg := &amp;Config{}
+        util.Debugln("creating server config from config file")
+        if err := viper.Unmarshal(cfg); err != nil </span><span class="cov0" title="0">{
+                grpclog.Fatal(err.Error())
+        }</span>
+        <span class="cov8" title="1">cfg.Plugins = loadPlugins()
+        return cfg</span>
+}
+
+// CreateListener creates a network listener for the grpc server from the netowork address
+func (c *Config) CreateListener() (net.Listener, error) <span class="cov0" title="0">{
+        if c.Network == "unix" </span><span class="cov0" title="0">{
+                dir := filepath.Dir(c.Address)
+                f, err := os.Stat(dir)
+                if err != nil </span><span class="cov0" title="0">{
+                        if err = os.MkdirAll(dir, 0755); err != nil </span><span class="cov0" title="0">{
+                                return nil, errors.Wrap(err, "failed to create the directory")
+                        }</span>
+                } else<span class="cov0" title="0"> if !f.IsDir() </span><span class="cov0" title="0">{
+                        return nil, errors.Errorf("file %q already exists", dir)
+                }</span>
+        }
+        <span class="cov0" title="0">util.Debugf("creating server listener %s %s\n", c.Network, c.Address)
+        lis, err := net.Listen(c.Network, c.Address)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, errors.Wrapf(err, "failed to listen %s %s", c.Network, c.Address)
+        }</span>
+        <span class="cov0" title="0">return lis, nil</span>
+}
+
+// With is used to configure/initialize a Config with custom options
+func (c *Config) With(opts ...Option) *Config <span class="cov8" title="1">{
+        for _, f := range opts </span><span class="cov8" title="1">{
+                f(c)
+        }</span>
+        <span class="cov8" title="1">return c</span>
+}
+
+func loadPlugins() []driver.Plugin <span class="cov8" title="1">{
+        var plugs = []driver.Plugin{}
+        for _, p := range viper.GetStringSlice("paths") </span><span class="cov0" title="0">{
+                util.Debugf("registered paths: %v\n", viper.GetStringSlice("paths"))
+                plug, err := plugin.Open(p)
+                if err != nil </span><span class="cov0" title="0">{
+                        grpclog.Fatalln(err.Error())
+                }</span>
+                <span class="cov0" title="0">sym, err := plug.Lookup(viper.GetString("symbol"))
+                if err != nil </span><span class="cov0" title="0">{
+                        grpclog.Fatalln(err.Error())
+                }</span>
+
+                <span class="cov0" title="0">var asPlugin driver.Plugin
+                asPlugin, ok := sym.(driver.Plugin)
+                if !ok </span><span class="cov0" title="0">{
+                        grpclog.Fatalf("provided plugin: %T does not satisfy Plugin interface\n", sym)
+                }</span> else<span class="cov0" title="0"> {
+                        util.Debugf("registered plugin: %T\n", sym)
+                        plugs = append(plugs, asPlugin)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return plugs</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package config
+
+import (
+        "github.com/autom8ter/engine/driver"
+        "github.com/autom8ter/engine/util"
+        "github.com/pkg/errors"
+        "github.com/spf13/viper"
+        "google.golang.org/grpc"
+        "google.golang.org/grpc/grpclog"
+        "strings"
+)
+
+// Option configures a gRPC and a gateway server.
+type Option func(*Config)
+
+// WithNetwork returns an Option that sets an network address for a gRPC server.
+func WithNetwork(network, addr string) Option <span class="cov8" title="1">{
+        viper.Set("network", network)
+        viper.Set("address", addr)
+        return func(c *Config) </span><span class="cov8" title="1">{
+                c.Address = addr
+                c.Network = network
+        }</span>
+}
+
+// WithUnaryInterceptors returns an Option that sets unary interceptor(s) for a gRPC server.
+func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option <span class="cov0" title="0">{
+        return func(c *Config) </span><span class="cov0" title="0">{
+                c.UnaryInterceptors = append(c.UnaryInterceptors, interceptors...)
+        }</span>
+}
+
+// WithGrpcServerStreamInterceptors returns an Option that sets stream interceptor(s) for a gRPC server.
+func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option <span class="cov0" title="0">{
+        return func(c *Config) </span><span class="cov0" title="0">{
+                c.StreamInterceptors = append(c.StreamInterceptors, interceptors...)
+        }</span>
+}
+
+// WithOptions returns an Option that sets grpc.ServerOption(s) to a gRPC server.
+func WithServerOptions(opts ...grpc.ServerOption) Option <span class="cov0" title="0">{
+        return func(c *Config) </span><span class="cov0" title="0">{
+                c.Option = append(c.Option, opts...)
+        }</span>
+}
+
+// WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
+//ref: https://golang.org/pkg/plugin/
+func WithPluginPaths(paths ...string) Option <span class="cov0" title="0">{
+        return func(c *Config) </span><span class="cov0" title="0">{
+                c.Paths = append(c.Paths, paths...)
+        }</span>
+}
+
+// WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
+// See driver.Plugin for the interface definition.
+func WithGoPlugins(svrs ...driver.Plugin) Option <span class="cov0" title="0">{
+        return func(c *Config) </span><span class="cov0" title="0">{
+                c.Plugins = append(c.Plugins, svrs...)
+                if len(c.Plugins) == 0 </span><span class="cov0" title="0">{
+                        grpclog.Fatal(errors.New("zero valid plugins registered"))
+                }</span>
+        }
+}
+
+// WithPluginSymbol sets the symbol/variable name that the engine will use to lookup and load plugins see.
+// ref: https://golang.org/pkg/plugin/
+func WithPluginSymbol(sym string) Option <span class="cov8" title="1">{
+        return func(c *Config) </span><span class="cov8" title="1">{
+                viper.Set("symbol", sym)
+                util.Debugf("set plugin symbol: %s\n", sym)
+                c.Symbol = sym
+        }</span>
+}
+
+// WithEnvPrefix sets the environment prefix when searching for environmental variables
+func WithEnvPrefix(prefix string) Option <span class="cov8" title="1">{
+        return func(c *Config) </span><span class="cov8" title="1">{
+                util.Debugf("loading environmental variables with prefix: %s\n", prefix)
+                viper.SetEnvPrefix(prefix)
+                util.Debugf("setting environmental key replacer: replace: %s with: %s\n", ".", "_")
+                viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+                viper.AutomaticEnv()
+                viper.Set("env_prefix", prefix)
+        }</span>
+}
+
+// WithDebug sets debug to true if not already set in your config or environmental variables
+func WithDebug() Option <span class="cov8" title="1">{
+        return func(c *Config) </span><span class="cov8" title="1">{
+                util.Debugln("enabling debug mode")
+                viper.Set("debug", true)
+        }</span>
+}
+</pre>
 		
 		</div>
 	</body>
