@@ -23,11 +23,22 @@ import (
 	"google.golang.org/grpc/grpclog"
 )
 
+var address string
+var network string
+var paths []string
+var debug bool
+var symbol string
+var envPrefix string
+
 func init() {
 	var err error
-	serveCmd.Flags().StringVarP(&address, "address", "a", ":3000", "network address to listen on")
-	serveCmd.Flags().StringVarP(&network, "network", "n", "tcp", "network type to listen on")
+	serveCmd.Flags().StringVarP(&address, "address", "a", viper.GetString("address"), "network address to listen on")
+	serveCmd.Flags().StringVarP(&network, "network", "n", viper.GetString("network"), "network type to listen on")
 	serveCmd.Flags().StringSliceVarP(&paths, "paths", "p", viper.GetStringSlice("paths"), "relative paths to plugins to register")
+	serveCmd.Flags().BoolVarP(&debug, "debug", "d", false, "enable debug mode")
+	serveCmd.Flags().StringVarP(&symbol, "symbol", "s", viper.GetString("symbol"), "plugin symbol to scan plugin path for")
+	serveCmd.Flags().StringVarP(&envPrefix, "env_prefix", "e", viper.GetString("env_prefix"), "env prefix to set")
+
 	if len(paths) == 0 || paths == nil || paths[0] == "" {
 		paths, err = util.ReadAsCSV(util.Prompt("please provide path(s) to plugins: "))
 		if err != nil {
@@ -42,10 +53,6 @@ func init() {
 	}
 }
 
-var address string
-var network string
-var paths []string
-
 // initCmd represents the init command
 var serveCmd = &cobra.Command{
 	Use:   "serve",
@@ -57,6 +64,8 @@ var serveCmd = &cobra.Command{
 			config.WithNetwork(network, address),
 			//Only necessary if not using a config file(./config.json|config.yaml) (variadic) no default
 			config.WithPluginPaths(paths...),
+			config.WithEnvPrefix(envPrefix),
+			config.WithPluginSymbol(symbol),
 			/*	config.WithServerOptions(),
 				func ConnectionTimeout(d time.Duration) ServerOption
 				func Creds(c credentials.TransportCredentials) ServerOption

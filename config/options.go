@@ -68,6 +68,7 @@ func WithGoPlugins(svrs ...driver.Plugin) Option {
 func WithPluginSymbol(sym string) Option {
 	return func(c *Config) {
 		viper.Set("symbol", sym)
+		util.Debugf("set plugin symbol: %s\n", sym)
 		c.Symbol = sym
 	}
 }
@@ -80,5 +81,13 @@ func WithEnvPrefix(prefix string) Option {
 		util.Debugf("setting environmental key replacer: replace: %s with: %s\n", ".", "_")
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 		viper.AutomaticEnv()
+	}
+}
+
+// WithDebug sets debug to true if not already set in your config or environmental variables
+func WithDebug() Option {
+	return func(c *Config) {
+		util.Debugln("enabling debug mode")
+		viper.Set("debug", true)
 	}
 }

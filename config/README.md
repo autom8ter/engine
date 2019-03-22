@@ -57,6 +57,14 @@ type Option func(*Config)
 
 Option configures a gRPC and a gateway server.
 
+#### func  WithDebug
+
+```go
+func WithDebug() Option
+```
+WithDebug sets debug to true if not already set in your config or environmental
+variables
+
 #### func  WithEnvPrefix
 
 ```go
