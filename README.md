@@ -12,6 +12,8 @@ License: MIT
 
 ```go
 //Exported variable named Plugin, used to build with go/plugin
+//Compile plugin and add to your config path to be loaded by the engine instance
+// ex: go build -buildmode=plugin -o bin/example.plugin examplepb/plugin.go
 var Plugin  Example
 
 //Embeded driver.PluginFunc is used to satisfy the driver.Plugin interface
@@ -28,6 +30,7 @@ func NewExample() Example {
 }
 //examplepb methods excluded for brevity
 
+//The compiled plugin file will be loaded at runtime if its set in your config path.
 //A basic example with all config options:
 func main() {
 	if err := engine.New().With(
