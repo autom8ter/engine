@@ -57,21 +57,24 @@ func main() {
 	}
 }
 ```
+---
+
 ## Table of Contents
 
 - [Engine](#engine)
+  * [Table of Contents](#table-of-contents)
   * [Overview](#overview)
   * [Features/Scope/Roadmap](#features-scope-roadmap)
     + [Engine Library:](#engine-library-)
     + [Enginectl (cli)](#enginectl--cli-)
-  * [Plugin Interface](#plugin-interface)
+  * [Driver](#driver)
   * [Configuration (viper)](#configuration--viper-)
+  * [EngineCtl (cli)](#enginectl--cli-)
   * [Grpc Middlewares (Guide)](#grpc-middlewares--guide-)
     + [Key Functions:](#key-functions-)
     + [Example(recovery):](#example-recovery--)
-  * [EngineCtl (cli)](#enginectl--cli-)
   * [Limitations](#limitations)
-  
+---
 
 ## Overview
 
@@ -89,9 +92,8 @@ func main() {
 - [x] Support for custom gRPC Server options
 - [x] Support for custom and chained Unary Interceptors
 - [x] Support for custom and chained Stream Interceptors
-- [ ] GoDoc documentation for every exported Method
-- [ ] 80%+ code coverage
-- [ ] Load go/plugins from paths set in environmental variables
+- [x] GoDoc documentation for every exported Method
+- [x] Load go/plugins from paths set in environmental variables
 - [ ] Load go/plugins directly from AWS S3
 - [ ] Load go/plugins directly from GCP storage
 - [ ] Load go/plugins directly from Github
@@ -100,14 +102,7 @@ func main() {
 ### Enginectl (cli)
 `go get github.com/autom8ter/engine/enginectl`
 - [x] Load and serve grpc services from go/plugins at runtime that satisfy driver.Plugin
-- [ ] Codegen: Makefile
-- [ ] Codegen: Basic config file
-- [ ] Codegen: Basic Protobuf file
-- [ ] Codegen: Helm Chart
-- [ ] Codegen: Dockerfile
-- [ ] Codegen: Kubernetes Deployment
-- [ ] Codegen: Google Endpoints Deployment
-- [ ] Codegen: AWS API Gateway Deployment
+- [ ] Codegen: Project setup for grpc plugin development and deployment
 
 ## Driver
 
@@ -154,45 +149,6 @@ example:
 }
 
 ```
-
-## Grpc Middlewares (Guide)
-
-### Key Functions:
-    type StreamServerInterceptor func(srv interface{}, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error
-    type UnaryServerInterceptor func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (resp interface{}, err error)
-
-### Example(recovery): 
-```go
-// UnaryServerInterceptor returns a new unary server interceptor for panic recovery.
-func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
-	o := evaluateOptions(opts)
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (_ interface{}, err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				err = recoverFrom(ctx, r, o.recoveryHandlerFunc)
-			}
-		}()
-
-		return handler(ctx, req)
-	}
-}
-
-// StreamServerInterceptor returns a new streaming server interceptor for panic recovery.
-func StreamServerInterceptor(opts ...Option) grpc.StreamServerInterceptor {
-	o := evaluateOptions(opts)
-	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				err = recoverFrom(stream.Context(), r, o.recoveryHandlerFunc)
-			}
-		}()
-
-		return handler(srv, stream)
-	}
-}
-```
-Please see [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) for a list of useful
-Unary and Streaming Interceptors
 
 ## EngineCtl (cli)
 
@@ -290,7 +246,7 @@ Use "enginectl [command] --help" for more information about a command.
 
 ```
     output:
-    INFO: 2019/03/22 16:24:14 using config file: /Users/coleman/go/src/github.com/autom8ter/engine/config.json
+    INFO: 2019/03/22 16:24:14 using config file: /Users/xxx/go/src/github.com/autom8ter/engine/config.json
     INFO: 2019/03/22 16:24:14 creating server config from config file
     INFO: 2019/03/22 16:24:14 registered paths: [bin/example.plugin]
     INFO: 2019/03/22 16:24:14 registered plugin: *main.Example
@@ -302,6 +258,47 @@ Use "enginectl [command] --help" for more information about a command.
     INFO: 2019/03/22 16:24:14 plugin count: 1
     INFO: 2019/03/22 16:24:14 creating server listener tcp :3000
     INFO: 2019/03/22 16:24:14 gRPC server is starting [::]:3000
+
+
+## Grpc Middlewares (Guide)
+
+### Key Functions:
+    type StreamServerInterceptor func(srv interface{}, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error
+    type UnaryServerInterceptor func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (resp interface{}, err error)
+
+### Example(recovery): 
+```go
+// UnaryServerInterceptor returns a new unary server interceptor for panic recovery.
+func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
+	o := evaluateOptions(opts)
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (_ interface{}, err error) {
+		defer func() {
+			if r := recover(); r != nil {
+				err = recoverFrom(ctx, r, o.recoveryHandlerFunc)
+			}
+		}()
+
+		return handler(ctx, req)
+	}
+}
+
+// StreamServerInterceptor returns a new streaming server interceptor for panic recovery.
+func StreamServerInterceptor(opts ...Option) grpc.StreamServerInterceptor {
+	o := evaluateOptions(opts)
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
+		defer func() {
+			if r := recover(); r != nil {
+				err = recoverFrom(stream.Context(), r, o.recoveryHandlerFunc)
+			}
+		}()
+
+		return handler(srv, stream)
+	}
+}
+```
+Please see [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) for a list of useful
+Unary and Streaming Interceptors
+
 
 ## Limitations
 
