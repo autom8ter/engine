@@ -4,24 +4,16 @@ import (
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/util"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
-	"strings"
+	"google.golang.org/grpc/stats"
+	"os"
+	"time"
 )
 
 // Option configures a gRPC and a gateway server.
 type Option func(*Config)
-
-// WithNetwork returns an Option that sets an network address for a gRPC server.
-func WithGRPCListener(network, addr string) Option {
-	viper.Set("network", network)
-	viper.Set("address", addr)
-	return func(c *Config) {
-		c.Address = addr
-		c.Network = network
-	}
-}
 
 // WithUnaryInterceptors returns an Option that sets unary interceptor(s) for a gRPC server.
 func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
@@ -37,18 +29,12 @@ func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option
 	}
 }
 
-// WithOptions returns an Option that sets grpc.ServerOption(s) to a gRPC server.
-func WithServerOptions(opts ...grpc.ServerOption) Option {
-	return func(c *Config) {
-		c.Option = append(c.Option, opts...)
-	}
-}
-
 // WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
 //ref: https://golang.org/pkg/plugin/
 func WithPluginPaths(paths ...string) Option {
 	return func(c *Config) {
 		c.Paths = append(c.Paths, paths...)
+		c.LoadPlugins()
 	}
 }
 
@@ -63,32 +49,42 @@ func WithGoPlugins(svrs ...driver.Plugin) Option {
 	}
 }
 
-// WithPluginSymbol sets the symbol/variable name that the engine will use to lookup and load plugins see.
-// ref: https://golang.org/pkg/plugin/
-func WithPluginSymbol(sym string) Option {
-	return func(c *Config) {
-		viper.Set("symbol", sym)
-		util.Debugf("set plugin symbol: %s\n", sym)
-		c.Symbol = sym
-	}
-}
-
-// WithEnvPrefix sets the environment prefix when searching for environmental variables
-func WithEnvPrefix(prefix string) Option {
-	return func(c *Config) {
-		util.Debugf("loading environmental variables with prefix: %s\n", prefix)
-		viper.SetEnvPrefix(prefix)
-		util.Debugf("setting environmental key replacer: replace: %s with: %s\n", ".", "_")
-		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-		viper.AutomaticEnv()
-		viper.Set("env_prefix", prefix)
-	}
-}
-
 // WithDebug sets debug to true if not already set in your config or environmental variables
 func WithDebug() Option {
 	return func(c *Config) {
 		util.Debugln("enabling debug mode")
-		viper.Set("debug", true)
+		if err := os.Setenv("DEBUG", "t"); err != nil {
+			grpclog.Fatalln(err.Error())
+		}
+	}
+}
+
+// WithCreds returns a ServerOption that sets credentials for server connections.
+func WithCreds(creds credentials.TransportCredentials) Option {
+	return func(c *Config) {
+		c.Option = append(c.Option, grpc.Creds(creds))
+	}
+}
+
+// WithStatsHandler returns a ServerOption that sets the stats handler for the server.
+func WithStatsHandler(h stats.Handler) Option {
+	return func(c *Config) {
+		c.Option = append(c.Option, grpc.StatsHandler(h))
+	}
+}
+
+// WithStatsHandler ConnectionTimeout returns a ServerOption that sets the timeout for connection establishment (up to and including HTTP/2 handshaking) for all new connections.
+// If this is not set, the default is 120 seconds.
+func WithConnTimeout(t time.Duration) Option {
+	return func(c *Config) {
+		c.Option = append(c.Option, grpc.ConnectionTimeout(t))
+	}
+}
+
+// WithMaxConcurrentStreams returns a ServerOption that will apply a limit on the number
+// of concurrent streams to each ServerTransport.
+func WithMaxConcurrentStreams(num uint32) Option {
+	return func(c *Config) {
+		c.Option = append(c.Option, grpc.MaxConcurrentStreams(num))
 	}
 }

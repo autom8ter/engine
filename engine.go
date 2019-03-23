@@ -11,24 +11,25 @@ import (
 	"syscall"
 )
 
+// Engine is an interface used to describe a server runtime
 type Engine interface {
 	With(opts ...config.Option) *Runtime
 	Config() *config.Config
-	Serve() error
 	Shutdown()
+	Serve() error
 }
 
-// Engine is the framework instance.
+// New creates a new engine intstance.
+func New(network, addr, symbol string) Engine {
+	return &Runtime{
+		cfg: config.New(network, addr, symbol),
+	}
+}
+
+// Runtime is an implementation of the engine API.
 type Runtime struct {
 	cfg        *config.Config
 	cancelFunc func()
-}
-
-// New creates a engine intstance.
-func New() Engine {
-	return &Runtime{
-		cfg: config.New(),
-	}
 }
 
 // With wraps the runtimes config with config options
@@ -47,12 +48,12 @@ func (e *Runtime) Config() *config.Config {
 // Serve starts the runtime gRPC server.
 func (e *Runtime) Serve() error {
 	grpcServer := servers.NewGrpcServer(e.cfg)
+	e.cancelFunc = grpcServer.Shutdown
 	lis, err := e.cfg.CreateListener()
 	if err != nil {
-		grpclog.Fatal(err.Error())
+		grpclog.Fatalln(err.Error())
 	}
 	err = grpcServer.Serve(lis)
-
 	return errors.WithStack(err)
 }
 

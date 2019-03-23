@@ -5,14 +5,6 @@
 
 ## Usage
 
-#### func  ChannelzClient
-
-```go
-func ChannelzClient(addr string) channelz.ChannelzClient
-```
-ChannelzClient creates a new grpc channelz client for connecting to a registered
-channelz server for debugging.
-
 #### func  Debugf
 
 ```go
@@ -28,10 +20,3 @@ func Debugln(args ...interface{})
 ```
 Debugln is grpclog.Infoln(args...) but only executes if debug=true is set in
 your config or environmental variables
-
-#### func  LoadPlugins
-
-```go
-func LoadPlugins() []driver.Plugin
-```
-LoadPlugins loads driver.Plugins from paths set in your config file

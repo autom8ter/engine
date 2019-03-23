@@ -1,14 +1,12 @@
 .PHONY: check
-check:	## go format ./..., go vet ./..., go install ./..., git add ., git commit -m "check"
+check:	## go format ./..., go vet ./..., go test ./..., go install ./...,
+	@go generate ./...
 	@go fmt ./...
 	@go vet ./...
-	@go install ./...
-	@go generate ./...
-	@git add .
-	@git commit -m "pass ✅"
+	@go test ./...
 
-clean: ## rm bin/*
-	rm bin/*
+clean: ## rm bin/* && rm release/*
+	rm bin/* && rm release/*
 
 .PHONY: help
 help:	## show this help

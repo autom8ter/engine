@@ -11,18 +11,19 @@
 type Engine interface {
 	With(opts ...config.Option) *Runtime
 	Config() *config.Config
-	Serve() error
 	Shutdown()
+	Serve() error
 }
 ```
 
+Engine is an interface used to describe a server runtime
 
 #### func  New
 
 ```go
-func New() Engine
+func New(network, addr, symbol string) Engine
 ```
-New creates a engine intstance.
+New creates a new engine intstance.
 
 #### type Runtime
 
@@ -31,7 +32,7 @@ type Runtime struct {
 }
 ```
 
-Engine is the framework instance.
+Runtime is an implementation of the engine API.
 
 #### func (*Runtime) Config
 

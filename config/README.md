@@ -9,10 +9,10 @@
 
 ```go
 type Config struct {
-	Network            string   `mapstructure:"network" json:"network"`
-	Address            string   `mapstructure:"address" json:"address"`
-	Paths              []string `mapstructure:"paths" json:"paths"`
-	Symbol             string   `mapstructure:"symbol" json:"symbol"`
+	Network            string   `json:"network"`
+	Address            string   `json:"address"`
+	Paths              []string `json:"paths"`
+	Symbol             string   `json:"symbol"`
 	Plugins            []driver.Plugin
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
@@ -28,7 +28,7 @@ Config instance. Otherwise, defaults are set.
 #### func  New
 
 ```go
-func New() *Config
+func New(network, addr, symbol string) *Config
 ```
 New creates a config from your config file. If no config file is present, the
 resulting Config will have the following defaults: netowork: "tcp" address:
@@ -41,6 +41,13 @@ func (c *Config) CreateListener() (net.Listener, error)
 ```
 CreateListener creates a network listener for the grpc server from the netowork
 address
+
+#### func (*Config) LoadPlugins
+
+```go
+func (c *Config) LoadPlugins()
+```
+LoadPlugins loads driver.Plugins from paths set in your config file
 
 #### func (*Config) With
 
@@ -57,6 +64,22 @@ type Option func(*Config)
 
 Option configures a gRPC and a gateway server.
 
+#### func  WithConnTimeout
+
+```go
+func WithConnTimeout(t time.Duration) Option
+```
+WithStatsHandler ConnectionTimeout returns a ServerOption that sets the timeout
+for connection establishment (up to and including HTTP/2 handshaking) for all
+new connections. If this is not set, the default is 120 seconds.
+
+#### func  WithCreds
+
+```go
+func WithCreds(creds credentials.TransportCredentials) Option
+```
+WithCreds returns a ServerOption that sets credentials for server connections.
+
 #### func  WithDebug
 
 ```go
@@ -64,21 +87,6 @@ func WithDebug() Option
 ```
 WithDebug sets debug to true if not already set in your config or environmental
 variables
-
-#### func  WithEnvPrefix
-
-```go
-func WithEnvPrefix(prefix string) Option
-```
-WithEnvPrefix sets the environment prefix when searching for environmental
-variables
-
-#### func  WithGRPCListener
-
-```go
-func WithGRPCListener(network, addr string) Option
-```
-WithNetwork returns an Option that sets an network address for a gRPC server.
 
 #### func  WithGoPlugins
 
@@ -89,6 +97,14 @@ WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
 engine runtime as opposed to go/plugins. See driver.Plugin for the interface
 definition.
 
+#### func  WithMaxConcurrentStreams
+
+```go
+func WithMaxConcurrentStreams(num uint32) Option
+```
+WithMaxConcurrentStreams returns a ServerOption that will apply a limit on the
+number of concurrent streams to each ServerTransport.
+
 #### func  WithPluginPaths
 
 ```go
@@ -97,20 +113,13 @@ func WithPluginPaths(paths ...string) Option
 WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
 ref: https://golang.org/pkg/plugin/
 
-#### func  WithPluginSymbol
+#### func  WithStatsHandler
 
 ```go
-func WithPluginSymbol(sym string) Option
+func WithStatsHandler(h stats.Handler) Option
 ```
-WithPluginSymbol sets the symbol/variable name that the engine will use to
-lookup and load plugins see. ref: https://golang.org/pkg/plugin/
-
-#### func  WithServerOptions
-
-```go
-func WithServerOptions(opts ...grpc.ServerOption) Option
-```
-WithOptions returns an Option that sets grpc.ServerOption(s) to a gRPC server.
+WithStatsHandler returns a ServerOption that sets the stats handler for the
+server.
 
 #### func  WithStreamInterceptors
 

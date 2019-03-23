@@ -4,8 +4,6 @@ A Pluggable gRPC Microservice Framework
                
 `go get github.com/autom8ter/engine`
 
-`go get github.com/autom8ter/engine/enginectl`
-
 Contributers: Coleman Word
 
 License: MIT
@@ -13,7 +11,7 @@ License: MIT
 ```go
 //Exported variable named Plugin, used to build with go/plugin
 //Compile plugin and add to your config path to be loaded by the engine instance
-// ex: go build -buildmode=plugin -o bin/example.plugin examplepb/plugin.go
+// ex: go build -buildmode=plugin -o bin/example.so examplepb/plugin.go
 var Plugin  Example
 
 //Embeded driver.PluginFunc is used to satisfy the driver.Plugin interface
@@ -33,31 +31,22 @@ func NewExample() Example {
 //The compiled plugin file will be loaded at runtime if its set in your config path.
 //A basic example with all config options:
 func main() {
-	if err := engine.New().With(
-		//Look for configuration vars in environment with a set prefix.
-	    config.WithEnvPrefix("ENGINE"),
-		//hard coded plugins(not using go/plugins
-		config.WithGoPlugins(),
-		//tcp/unix and port/file, Only necessary if not using a config file(./config.json|config.yaml),  defaults to tcp, :3000
-		config.WithNetwork("tcp", ":8080"),
-		//Only necessary if not using a config file(./config.json|config.yaml) (variadic) no default
-		//how to build: go build -buildmode=plugin -o ./plugins/$TARGETOUTPUT.plugin $TARGETGOFILE.go ref: https://golang.org/pkg/plugin/
-		config.WithPluginPaths("bin/example.plugin"),
-		//Only necessary if not using a config file(./config.json|config.yaml),  defaults to Plugin
-		config.WithPluginSymbol("Plugin"),
-		//add grpc server options (variadic) 
-		config.WithServerOptions(),
-		//add stream interceptors to all plugins(variadic) metrics, tracing, retry, auth, etc
-		config.WithStreamInterceptors(),
-		//add unary interceptors to all plugins(variadic) metrics, tracing, retry, auth, etc
-		config.WithUnaryInterceptors(),
-		//Only necessary if not using a config file(./config.json|config.yaml), enables verbose server logging for develpment
-		config.WithDebug(),
-
-	).Serve(); err != nil {
-		//start server and fail if error
-		grpclog.Fatal(err.Error())
-	}
+	// consider using flags, env vars. or a config file to populate the inputs needed to create an engine instance
+    	if err := engine.New("tcp", ":3002", "Plugin").With(
+    		//verbose logging for development
+    		config.WithDebug(),
+    		config.WithStatsHandler(nil),
+    		//connection timeout
+    		config.WithConnTimeout(2 *time.Minute),
+    		//transport credentials
+    		config.WithCreds(nil),
+    		//max concurrent streams
+    		config.WithMaxConcurrentStreams(1000),
+    		//filepath to plugin
+    		config.WithPluginPaths("bin/example.so"),
+    	).Serve(); err != nil {
+    		grpclog.Fatalln(err.Error())
+    	}
 }
 ```
 ---
@@ -68,46 +57,43 @@ func main() {
   * [Table of Contents](#table-of-contents)
   * [Overview](#overview)
   * [Features/Scope/Roadmap](#features-scope-roadmap)
-    + [Engine Library:](#engine-library-)
-    + [Enginectl (cli)](#enginectl--cli-)
   * [Driver](#driver)
-  * [Configuration (viper)](#configuration--viper-)
-  * [EngineCtl (cli)](#enginectl--cli-)
-  * [Grpc Middlewares (Guide)](#grpc-middlewares--guide-)
+  * [Grpc Middlewares](#grpc-middlewares)
     + [Key Functions:](#key-functions-)
     + [Example(recovery):](#example-recovery--)
+  * [GoDoc](#godoc)
+      - [type Engine](#type-engine)
+      - [func  New](#func--new)
+      - [type Runtime](#type-runtime)
+      - [func (*Runtime) Config](#func---runtime--config)
+      - [func (*Runtime) Serve](#func---runtime--serve)
+      - [func (*Runtime) Shutdown](#func---runtime--shutdown)
+      - [func (*Runtime) With](#func---runtime--with)
   * [Limitations](#limitations)
+  
 ---
 
 ## Overview
 
 - Engine serves [go/plugins](https://golang.org/pkg/plugin/) that are dynamically loaded at runtime.
-- Plugins export a type that implements the driver.Plugin interface: RegisterWithServer(s *grpc.Server)
-- Exported plugins must be named Plugin
-- Engine decouples the server runtime from grpc service development so that plugins can be added as externally compiled files that can be added to a deployment from local storage without making changes to the engine runtime.
+- Plugins must export a type that implements the driver.Plugin interface: RegisterWithServer(s *grpc.Server)
+- Engine decouples the server runtime from grpc service development so that plugins can be added as externally compiled files that can be added to a deployment from local storage without making changes to the engine server.
+
+---
 
 ## Features/Scope/Roadmap
 
-### Engine Library:
 - [x] Load grpc services from go/plugins at runtime that satisfy driver.Plugin
-- [x] Load go/plugins from paths set in config file
 - [x] Support for loading driver.Plugins directly(no go/plugins)
 - [x] Support for custom gRPC Server options
 - [x] Support for custom and chained Unary Interceptors
 - [x] Support for custom and chained Stream Interceptors
 - [x] GoDoc documentation for every exported Method
-- [x] Load go/plugins from paths set in environmental variables
-- [ ] Load go/plugins directly from AWS S3
-- [ ] Load go/plugins directly from GCP storage
-- [ ] Load go/plugins directly from Github
-- [ ] Load go/plugins directly from a Kubernetes Volume
-
-### Enginectl (cli)
-`go get github.com/autom8ter/engine/enginectl`
-- [x] Load and serve grpc services from go/plugins at runtime that satisfy driver.Plugin
-- [ ] Codegen: Project setup for grpc plugin development and deployment
+---
 
 ## Driver
+
+github.com/autom8ter/engine/driver
 
 driver.Plugin is used to register grpc server implementations.
 
@@ -127,143 +113,16 @@ func (p PluginFunc) RegisterWithServer(s *grpc.Server) {
 }
 
 ```
+---
 
-## Configuration (viper)
+## Grpc Middlewares
 
-- Config files must be either config.json or config.yaml in your current working directory
+Middlewares should be used for things like monitoring, logging, auth, retry, etc.
 
-Variables:
-- address: address to listen on, default: :3000
-- network: tcp/unix, default: tcp
-- paths: paths to generated plugin files to load
-- symbol: exported plugin variable name, default: Plugin
-- debug: enable verbose logging for development
+They can be added to the engine with:
 
-example:
-```json
-{
-  "address": ":3000",
-  "network": "tcp",
-  "paths": [
-    "bin/example.plugin"
-  ],
-  "symbol": "Plugin",
-  "debug": "true"
-}
-
-```
-
-## EngineCtl (cli)
-
-EngineCtl is a very basic implementation of the Engine library that allows
-users to use flags to override a config file. It requires zero coding to 
-use most of the functionality of the engine library since users only need to 
-provide paths to plugins to create a fully customizable grpc microservice.
-
-**It is particularly useful in containers:**
-
--> download enginectl -> copy plugins to container->copy config file to container-> enginectl init
-
-Run `enginectl` with no flags/subcommands
-
-Output:
-
-```text
-
-----------------------------------------------------------------------------
-8888888888                d8b                        888   888
-888                       Y8P                        888   888
-888                                                  888   888
-8888888   88888b.  .d88b. 88888888b.  .d88b.  .d8888b888888888
-888       888 "88bd88P"88b888888 "88bd8P  Y8bd88P"   888   888
-888       888  888888  888888888  88888888888888     888   888
-888       888  888Y88b 888888888  888Y8b.    Y88b.   Y88b. 888
-8888888888888  888 "Y88888888888  888 "Y8888  "Y8888P "Y888888
-                       888                                    
-                  Y8b d88P                                    
-                   "Y88P"
-
-Assign individual developers to develop specific plugins and then 
-just add them as a plugin config path. Plugin development is completely
-independent of the runtime NICE.
-
-----------------------------------------------------------------------------
-Download:
-go get github.com/autom8ter/engine/enginectl
-
-----------------------------------------------------------------------------
-Configuration:
-
-- Config files must be either config.json or config.yaml in your current working directory
-
-Variables:
-- address: address to listen on, default: :3000
-- network: tcp/unix, default: tcp
-- paths: paths to generated plugin files to load
-- symbol: exported plugin variable name, default: Plugin
-- debug: enable verbose logging for development
-
-example:
-
-{
-  "address": ":3000",
-  "network": "tcp",
-  "paths": [
-    "bin/example.plugin"
-  ],
-  "symbol": "Plugin",
-  "debug": "true"
-}
-
-----------------------------------------------------------------------------
-How to build go/plugins:
-go build -buildmode=plugin -o bin/example.plugin examplepb/plugin.go
-----------------------------------------------------------------------------
-Example Dockerfile
-
-FROM golang:1.11
-RUN go get github.com/autom8ter/engine/enginectl
-COPY bin/example.plugin .
-COPY config.json .
-ENTRYPOINT [ "enginectl", "serve"] 
-
-----------------------------------------------------------------------------
-
-Current Config:
-map[paths:[bin/example.plugin] symbol:Plugin debug:true address::3000 network:tcp]
-----------------------------------------------------------------------------
-
-Usage:
-  enginectl [command]
-
-Available Commands:
-  help        Help about any command
-  serve       load plugins from config and start the enginectl server
-
-Flags:
-  -h, --help   help for enginectl
-
-Use "enginectl [command] --help" for more information about a command.
-
-
-
-```
-    output:
-    INFO: 2019/03/22 16:24:14 using config file: /Users/xxx/go/src/github.com/autom8ter/engine/config.json
-    INFO: 2019/03/22 16:24:14 creating server config from config file
-    INFO: 2019/03/22 16:24:14 registered paths: [bin/example.plugin]
-    INFO: 2019/03/22 16:24:14 registered plugin: *main.Example
-    INFO: 2019/03/22 16:24:14 loading environmental variables with prefix: 
-    INFO: 2019/03/22 16:24:14 setting environmental key replacer: replace: . with: _
-    INFO: 2019/03/22 16:24:14 set plugin symbol: Plugin
-    INFO: 2019/03/22 16:24:14 creating grpc server
-    INFO: 2019/03/22 16:24:14 registered server reflection
-    INFO: 2019/03/22 16:24:14 plugin count: 1
-    INFO: 2019/03/22 16:24:14 creating server listener tcp :3000
-    INFO: 2019/03/22 16:24:14 gRPC server is starting [::]:3000
-
-
-## Grpc Middlewares (Guide)
+    config.WithStreamInterceptors(...)
+    config.WithUnaryInterceptors(...)
 
 ### Key Functions:
     type StreamServerInterceptor func(srv interface{}, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error
@@ -302,9 +161,73 @@ func StreamServerInterceptor(opts ...Option) grpc.StreamServerInterceptor {
 Please see [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) for a list of useful
 Unary and Streaming Interceptors
 
+---
+
+## GoDoc
+
+#### type Engine
+
+```go
+type Engine interface {
+	With(opts ...config.Option) *Runtime
+	Config() *config.Config
+	Shutdown()
+	Serve() error
+}
+```
+Engine is an interface used to describe a server runtime
+
+
+#### func  New
+
+```go
+func New(network, addr, symbol string, paths ...string) Engine
+```
+New creates a engine intstance.
+
+#### type Runtime
+
+```go
+type Runtime struct {
+}
+```
+
+Runtime is an implementation of the engine API.
+
+#### func (*Runtime) Config
+
+```go
+func (e *Runtime) Config() *config.Config
+```
+Config returns the runtimes current configuration
+
+#### func (*Runtime) Serve
+
+```go
+func (e *Runtime) Serve() error
+```
+Serve starts the runtime gRPC server.
+
+#### func (*Runtime) Shutdown
+
+```go
+func (e *Runtime) Shutdown()
+```
+Shutdown gracefully closes the grpc server.
+
+#### func (*Runtime) With
+
+```go
+func (e *Runtime) With(opts ...config.Option) *Runtime
+```
+With wraps the runtimes config with config options ref:
+github.com/autom8ter/engine/config/options.go
+
+---
 
 ## Limitations
 
 Im hoping someone can help explain why some of these errors occur:
 - When creating a plugin, one must NOT use pointer methods when satisfying the driver.Plugin interface
 - If a json config is hard-coded as a string, the server fails, but succeeds if it is present as a config file
+
