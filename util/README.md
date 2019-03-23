@@ -34,3 +34,4 @@ your config or environmental variables
 ```go
 func LoadPlugins() []driver.Plugin
 ```
+LoadPlugins loads driver.Plugins from paths set in your config file
