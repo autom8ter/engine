@@ -6,15 +6,17 @@ import (
 	"github.com/autom8ter/engine/servers"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/grpclog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 type Engine interface {
+	http.Handler
 	With(opts ...config.Option) *Runtime
 	Config() *config.Config
-	Serve() error
+	ServeGRPC() error
 	Shutdown()
 }
 
@@ -45,7 +47,7 @@ func (e *Runtime) Config() *config.Config {
 }
 
 // Serve starts the runtime gRPC server.
-func (e *Runtime) Serve() error {
+func (e *Runtime) ServeGRPC() error {
 	grpcServer := servers.NewGrpcServer(e.cfg)
 	lis, err := e.cfg.CreateListener()
 	if err != nil {
@@ -73,4 +75,9 @@ func (e *Runtime) watchShutdownSignal(ctx context.Context) error {
 		// no-op
 	}
 	return nil
+}
+
+func (e *Runtime) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	grpcServer := servers.NewGrpcServer(e.cfg)
+	grpcServer.ServeHTTP(w,r)
 }
