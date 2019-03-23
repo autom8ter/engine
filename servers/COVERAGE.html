@@ -54,7 +54,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/autom8ter/engine/servers/grpc.go (76.9%)</option>
+				<option value="file0">github.com/autom8ter/engine/servers/grpc.go (78.6%)</option>
 				
 				</select>
 			</div>
@@ -75,6 +75,7 @@ import (
         "github.com/autom8ter/engine/servers/driver"
         "github.com/autom8ter/engine/util"
         "google.golang.org/grpc"
+        "google.golang.org/grpc/channelz/service"
         "google.golang.org/grpc/grpclog"
         "google.golang.org/grpc/reflection"
         "net"
@@ -92,6 +93,7 @@ func NewGrpcServer(c *config.Config) driver.Server <span class="cov8" title="1">
         s := grpc.NewServer(c.Option...)
         util.Debugln("creating grpc server")
         reflection.Register(s)
+        service.RegisterChannelzServiceToServer(s)
         util.Debugln("registered server reflection")
         for i, svr := range c.Plugins </span><span class="cov0" title="0">{
                 svr.RegisterWithServer(s)

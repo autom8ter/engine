@@ -5,6 +5,7 @@ import (
 	"github.com/autom8ter/engine/servers/driver"
 	"github.com/autom8ter/engine/util"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"net"
@@ -22,6 +23,7 @@ func NewGrpcServer(c *config.Config) driver.Server {
 	s := grpc.NewServer(c.Option...)
 	util.Debugln("creating grpc server")
 	reflection.Register(s)
+	service.RegisterChannelzServiceToServer(s)
 	util.Debugln("registered server reflection")
 	for i, svr := range c.Plugins {
 		svr.RegisterWithServer(s)
