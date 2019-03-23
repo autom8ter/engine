@@ -21,7 +21,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/grpclog"
-	"net/http"
 )
 
 var address string
@@ -30,7 +29,6 @@ var paths []string
 var debug bool
 var symbol string
 var envPrefix string
-var httP bool
 
 func init() {
 	var err error
@@ -40,7 +38,6 @@ func init() {
 	serveCmd.Flags().BoolVarP(&debug, "debug", "d", false, "enable debug mode")
 	serveCmd.Flags().StringVarP(&symbol, "symbol", "s", viper.GetString("symbol"), "plugin symbol to scan plugin path for")
 	serveCmd.Flags().StringVarP(&envPrefix, "env_prefix", "e", viper.GetString("env_prefix"), "env prefix to set")
-	serveCmd.Flags().BoolVarP(&httP, "http", "h", false, "serve as http")
 
 	if len(paths) == 0 || paths == nil || paths[0] == "" {
 		paths, err = util.ReadAsCSV(util.Prompt("please provide path(s) to plugins: "))
@@ -61,79 +58,41 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "load plugins from config and start the enginectl server",
 	Run: func(cmd *cobra.Command, args []string) {
-		if httP {
-			//A basic example with all config options:
-			if err := http.ListenAndServe(address, engine.New().With(
-				//tcp/unix and port/file, Only necessary if not using a config file(./config.json|config.yaml),  defaults to tcp, :3000
-				config.WithGRPCListener(network, address),
-				//Only necessary if not using a config file(./config.json|config.yaml) (variadic) no default
-				config.WithPluginPaths(paths...),
-				config.WithEnvPrefix(envPrefix),
-				config.WithPluginSymbol(symbol),
-				/*	config.WithServerOptions(),
-					func ConnectionTimeout(d time.Duration) ServerOption
-					func Creds(c credentials.TransportCredentials) ServerOption
-					func CustomCodec(codec Codec) ServerOption
-					func InTapHandle(h tap.ServerInHandle) ServerOption
-					func InitialConnWindowSize(s int32) ServerOption
-					func InitialWindowSize(s int32) ServerOption
-					func KeepaliveEnforcementPolicy(kep keepalive.EnforcementPolicy) ServerOption
-					func KeepaliveParams(kp keepalive.ServerParameters) ServerOption
-					func MaxConcurrentStreams(n uint32) ServerOption
-					func MaxHeaderListSize(s uint32) ServerOption
-					func MaxMsgSize(m int) ServerOption
-					func MaxRecvMsgSize(m int) ServerOption
-					func MaxSendMsgSize(m int) ServerOption
-					func RPCCompressor(cp Compressor) ServerOption
-					func RPCDecompressor(dc Decompressor) ServerOption
-					func ReadBufferSize(s int) ServerOption
-					func StatsHandler(h stats.Handler) ServerOption
-					func StreamInterceptor(i StreamServerInterceptor) ServerOption
-					func UnaryInterceptor(i UnaryServerInterceptor) ServerOption
-					func UnknownServiceHandler(streamHandler StreamHandler) ServerOption
-					func WriteBufferSize(s int) ServerOption
-				*/
-			)); err != nil {
-				grpclog.Fatalln(err.Error())
-			}
 
-		} else {
-			//A basic example with all config options:
-			if err := engine.New().With(
-				//tcp/unix and port/file, Only necessary if not using a config file(./config.json|config.yaml),  defaults to tcp, :3000
-				config.WithGRPCListener(network, address),
-				//Only necessary if not using a config file(./config.json|config.yaml) (variadic) no default
-				config.WithPluginPaths(paths...),
-				config.WithEnvPrefix(envPrefix),
-				config.WithPluginSymbol(symbol),
-				/*	config.WithServerOptions(),
-					func ConnectionTimeout(d time.Duration) ServerOption
-					func Creds(c credentials.TransportCredentials) ServerOption
-					func CustomCodec(codec Codec) ServerOption
-					func InTapHandle(h tap.ServerInHandle) ServerOption
-					func InitialConnWindowSize(s int32) ServerOption
-					func InitialWindowSize(s int32) ServerOption
-					func KeepaliveEnforcementPolicy(kep keepalive.EnforcementPolicy) ServerOption
-					func KeepaliveParams(kp keepalive.ServerParameters) ServerOption
-					func MaxConcurrentStreams(n uint32) ServerOption
-					func MaxHeaderListSize(s uint32) ServerOption
-					func MaxMsgSize(m int) ServerOption
-					func MaxRecvMsgSize(m int) ServerOption
-					func MaxSendMsgSize(m int) ServerOption
-					func RPCCompressor(cp Compressor) ServerOption
-					func RPCDecompressor(dc Decompressor) ServerOption
-					func ReadBufferSize(s int) ServerOption
-					func StatsHandler(h stats.Handler) ServerOption
-					func StreamInterceptor(i StreamServerInterceptor) ServerOption
-					func UnaryInterceptor(i UnaryServerInterceptor) ServerOption
-					func UnknownServiceHandler(streamHandler StreamHandler) ServerOption
-					func WriteBufferSize(s int) ServerOption
-				*/
-			).ServeGRPC(); err != nil {
-				//start server and fail if error
-				grpclog.Fatal(err.Error())
-			}
-
+		//A basic example with all config options:
+		if err := engine.New().With(
+			//tcp/unix and port/file, Only necessary if not using a config file(./config.json|config.yaml),  defaults to tcp, :3000
+			config.WithGRPCListener(network, address),
+			//Only necessary if not using a config file(./config.json|config.yaml) (variadic) no default
+			config.WithPluginPaths(paths...),
+			config.WithEnvPrefix(envPrefix),
+			config.WithPluginSymbol(symbol),
+			/*	config.WithServerOptions(),
+				func ConnectionTimeout(d time.Duration) ServerOption
+				func Creds(c credentials.TransportCredentials) ServerOption
+				func CustomCodec(codec Codec) ServerOption
+				func InTapHandle(h tap.ServerInHandle) ServerOption
+				func InitialConnWindowSize(s int32) ServerOption
+				func InitialWindowSize(s int32) ServerOption
+				func KeepaliveEnforcementPolicy(kep keepalive.EnforcementPolicy) ServerOption
+				func KeepaliveParams(kp keepalive.ServerParameters) ServerOption
+				func MaxConcurrentStreams(n uint32) ServerOption
+				func MaxHeaderListSize(s uint32) ServerOption
+				func MaxMsgSize(m int) ServerOption
+				func MaxRecvMsgSize(m int) ServerOption
+				func MaxSendMsgSize(m int) ServerOption
+				func RPCCompressor(cp Compressor) ServerOption
+				func RPCDecompressor(dc Decompressor) ServerOption
+				func ReadBufferSize(s int) ServerOption
+				func StatsHandler(h stats.Handler) ServerOption
+				func StreamInterceptor(i StreamServerInterceptor) ServerOption
+				func UnaryInterceptor(i UnaryServerInterceptor) ServerOption
+				func UnknownServiceHandler(streamHandler StreamHandler) ServerOption
+				func WriteBufferSize(s int) ServerOption
+			*/
+		).Serve(); err != nil {
+			//start server and fail if error
+			grpclog.Fatal(err.Error())
 		}
 
 	},
