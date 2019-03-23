@@ -7,16 +7,6 @@ check:	## go format ./..., go vet ./..., go install ./..., git add ., git commit
 	@git add .
 	@git commit -m "pass ✅"
 
-build: ## docker build -t enginectl .
-	docker build -t enginectl .
-
-run: ## docker run --name enginectl -d -p 3000:3000 colemanword/enginectl serve
-	docker run --name enginectl -d -p 3000:3000 colemanword/enginectl serve
-
-prune: ## stop enginectl container, then prune all stopeed containers
-	docker container stop enginectl
-	docker container prune
-
 clean: ## rm bin/*
 	rm bin/*
 
