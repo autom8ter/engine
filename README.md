@@ -38,7 +38,7 @@ func main() {
     		config.WithStatsHandler(nil),
     		//connection timeout
     		config.WithConnTimeout(2 *time.Minute),
-    		//transport credentials
+    		//transport credentials ref:https://godoc.org/google.golang.org/grpc/credentials
     		config.WithCreds(nil),
     		//max concurrent streams
     		config.WithMaxConcurrentStreams(1000),
@@ -89,6 +89,9 @@ func main() {
 - [x] Support for custom and chained Unary Interceptors
 - [x] Support for custom and chained Stream Interceptors
 - [x] GoDoc documentation for every exported Method
+- [x] Channelz ref: https://godoc.org/google.golang.org/grpc/channelz
+- [x] Reflection ref: https://godoc.org/google.golang.org/grpc/reflection
+
 ---
 
 ## Driver
