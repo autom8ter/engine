@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"net"
+	"net/http"
 )
 
 // GrpcServer wraps grpc.Server setup process.
@@ -42,4 +43,9 @@ func (s *GrpcServer) Serve(l net.Listener) error {
 func (s *GrpcServer) Shutdown() {
 	grpclog.Infoln("shutting down grpc server...")
 	s.server.GracefulStop()
+}
+
+// Shutdown implements Server.Shutdown for gracefully shutting down the grpc server
+func (s *GrpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.server.ServeHTTP(w, r)
 }

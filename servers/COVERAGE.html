@@ -54,7 +54,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/autom8ter/engine/servers/grpc.go (83.3%)</option>
+				<option value="file0">github.com/autom8ter/engine/servers/grpc.go (76.9%)</option>
 				
 				</select>
 			</div>
@@ -78,6 +78,7 @@ import (
         "google.golang.org/grpc/grpclog"
         "google.golang.org/grpc/reflection"
         "net"
+        "net/http"
 )
 
 // GrpcServer wraps grpc.Server setup process.
@@ -112,6 +113,11 @@ func (s *GrpcServer) Serve(l net.Listener) error <span class="cov8" title="1">{
 func (s *GrpcServer) Shutdown() <span class="cov8" title="1">{
         grpclog.Infoln("shutting down grpc server...")
         s.server.GracefulStop()
+}</span>
+
+// Shutdown implements Server.Shutdown for gracefully shutting down the grpc server
+func (s *GrpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        s.server.ServeHTTP(w, r)
 }</span>
 </pre>
 		
