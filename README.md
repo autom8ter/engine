@@ -36,7 +36,7 @@ func main() {
 		//hard coded plugins(not using go/plugins
 		config.WithGoPlugins(),
 		//tcp/unix and port/file, Only necessary if not using a config file(./config.json|config.yaml),  defaults to tcp, :3000
-		config.WithGRPCListener("tcp", ":8080"),
+		config.WithNetwork("tcp", ":8080"),
 		//Only necessary if not using a config file(./config.json|config.yaml) (variadic) no default
 		//how to build: go build -buildmode=plugin -o ./plugins/$TARGETOUTPUT.plugin $TARGETGOFILE.go ref: https://golang.org/pkg/plugin/
 		config.WithPluginPaths("bin/example.plugin"),
@@ -48,7 +48,7 @@ func main() {
 		config.WithStreamInterceptors(),
 		//add unary interceptors to all plugins(variadic) metrics, tracing, retry, auth, etc
 		config.WithUnaryInterceptors(),
-		//Only necessary if not using a config file(./config.json|config.yaml)
+		//Only necessary if not using a config file(./config.json|config.yaml), enables verbose server logging for develpment
 		config.WithDebug(),
 
 	).Serve(); err != nil {
