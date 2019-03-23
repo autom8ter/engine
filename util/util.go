@@ -32,6 +32,7 @@ func ChannelzClient(addr string) channelz.ChannelzClient {
 	return channelz.NewChannelzClient(c)
 }
 
+// LoadPlugins loads driver.Plugins from paths set in your config file
 func LoadPlugins() []driver.Plugin {
 	var plugs = []driver.Plugin{}
 	for _, p := range viper.GetStringSlice("paths") {
