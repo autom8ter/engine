@@ -79,5 +79,5 @@ func (e *Runtime) watchShutdownSignal(ctx context.Context) error {
 
 func (e *Runtime) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	grpcServer := servers.NewGrpcServer(e.cfg)
-	grpcServer.ServeHTTP(w,r)
+	grpcServer.ServeHTTP(w, r)
 }

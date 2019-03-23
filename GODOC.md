@@ -9,9 +9,10 @@
 
 ```go
 type Engine interface {
+	http.Handler
 	With(opts ...config.Option) *Runtime
 	Config() *config.Config
-	Serve() error
+	ServeGRPC() error
 	Shutdown()
 }
 ```
@@ -40,12 +41,18 @@ func (e *Runtime) Config() *config.Config
 ```
 Config returns the runtimes current configuration
 
-#### func (*Runtime) Serve
+#### func (*Runtime) ServeGRPC
 
 ```go
-func (e *Runtime) Serve() error
+func (e *Runtime) ServeGRPC() error
 ```
 Serve starts the runtime gRPC server.
+
+#### func (*Runtime) ServeHTTP
+
+```go
+func (e *Runtime) ServeHTTP(w http.ResponseWriter, r *http.Request)
+```
 
 #### func (*Runtime) Shutdown
 

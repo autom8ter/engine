@@ -23,7 +23,7 @@ func TestWith(t *testing.T) {
 		config.WithDebug(),
 		config.WithEnvPrefix("ENGINE"),
 		config.WithPluginSymbol("Random"),
-		config.WithNetwork("tcp", ":3001"),
+		config.WithGRPCListener("tcp", ":3001"),
 		config.WithGoPlugins(mock.NewExample()),
 		config.WithServerOptions(),
 		config.WithStreamInterceptors(),

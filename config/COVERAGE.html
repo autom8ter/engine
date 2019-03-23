@@ -168,7 +168,7 @@ import (
 type Option func(*Config)
 
 // WithNetwork returns an Option that sets an network address for a gRPC server.
-func WithNetwork(network, addr string) Option <span class="cov8" title="1">{
+func WithGRPCListener(network, addr string) Option <span class="cov8" title="1">{
         viper.Set("network", network)
         viper.Set("address", addr)
         return func(c *Config) </span><span class="cov8" title="1">{

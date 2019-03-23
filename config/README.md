@@ -73,6 +73,13 @@ func WithEnvPrefix(prefix string) Option
 WithEnvPrefix sets the environment prefix when searching for environmental
 variables
 
+#### func  WithGRPCListener
+
+```go
+func WithGRPCListener(network, addr string) Option
+```
+WithNetwork returns an Option that sets an network address for a gRPC server.
+
 #### func  WithGoPlugins
 
 ```go
@@ -81,13 +88,6 @@ func WithGoPlugins(svrs ...driver.Plugin) Option
 WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
 engine runtime as opposed to go/plugins. See driver.Plugin for the interface
 definition.
-
-#### func  WithNetwork
-
-```go
-func WithNetwork(network, addr string) Option
-```
-WithNetwork returns an Option that sets an network address for a gRPC server.
 
 #### func  WithPluginPaths
 
