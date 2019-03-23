@@ -39,15 +39,14 @@ resulting Config will have the following defaults: netowork: "tcp" address:
 ```go
 func (c *Config) CreateListener() (net.Listener, error)
 ```
-CreateListener creates a network listener for the grpc server from the netowork
-address
+CreateListener creates a network listener from the network and address config
 
 #### func (*Config) LoadPlugins
 
 ```go
 func (c *Config) LoadPlugins()
 ```
-LoadPlugins loads driver.Plugins from paths set in your config file
+LoadPlugins loads driver.Plugins from paths set with config.WithPluginPaths(...)
 
 #### func (*Config) With
 

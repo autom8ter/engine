@@ -1,3 +1,6 @@
+// Package config is used to setup the configuration of a new Engine instance. A basic config instance
+// is created from your config file with New() and then it may be configured more with it's method With(...options)
+
 package config
 
 import (
@@ -46,7 +49,7 @@ func New(network, addr, symbol string) *Config {
 	return c
 }
 
-// CreateListener creates a network listener for the grpc server from the netowork address
+// CreateListener creates a network listener from the network and address config
 func (c *Config) CreateListener() (net.Listener, error) {
 	util.Debugf("creating server listener %s %s\n", c.Network, c.Address)
 	lis, err := net.Listen(c.Network, c.Address)
@@ -65,7 +68,7 @@ func (c *Config) With(opts ...Option) *Config {
 	return c
 }
 
-// LoadPlugins loads driver.Plugins from paths set in your config file
+// LoadPlugins loads driver.Plugins from paths set with config.WithPluginPaths(...)
 func (c *Config) LoadPlugins() {
 	for _, p := range c.Paths {
 		util.Debugf("registered path: %v\n", p)
