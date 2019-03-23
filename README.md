@@ -258,7 +258,7 @@ example:
 
 ----------------------------------------------------------------------------
 How to build go/plugins:
-go build -buildmode=plugin -o ../bin/example.plugin examplepb/plugin.go
+go build -buildmode=plugin -o bin/example.plugin examplepb/plugin.go
 ----------------------------------------------------------------------------
 Example Dockerfile
 
@@ -266,7 +266,7 @@ FROM golang:1.11
 RUN go get github.com/autom8ter/engine/enginectl
 COPY bin/example.plugin .
 COPY config.json .
-ENTRYPOINT [ "enginectl", "init"] 
+ENTRYPOINT [ "enginectl", "serve"] 
 
 ----------------------------------------------------------------------------
 
