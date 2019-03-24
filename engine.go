@@ -5,6 +5,7 @@ import (
 	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/servers"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/grpclog"
 	"os"
 	"os/signal"
@@ -14,20 +15,20 @@ import (
 // Engine is an interface used to describe a server runtime
 type Engine interface {
 	With(opts ...config.Option) *Runtime
-	Config() *config.Config
 	Shutdown()
-	Serve() error
+	Serve(ctx context.Context) error
 }
 
 // New creates a new engine intstance.
-func New(network, addr, symbol string) Engine {
+func New(network, addr string) Engine {
 	return &Runtime{
-		cfg: config.New(network, addr, symbol),
+		cfg: config.New(network, addr),
 	}
 }
 
 // Runtime is an implementation of the engine API.
 type Runtime struct {
+	ctx        context.Context
 	cfg        *config.Config
 	cancelFunc func()
 }
@@ -40,20 +41,35 @@ func (e *Runtime) With(opts ...config.Option) *Runtime {
 	}
 }
 
-// Config returns the runtimes current configuration
-func (e *Runtime) Config() *config.Config {
-	return e.cfg
-}
-
 // Serve starts the runtime gRPC server.
-func (e *Runtime) Serve() error {
+func (e *Runtime) Serve(ctx context.Context) error {
+	var err error
+	eg, ctx := errgroup.WithContext(ctx)
+	ctx, e.cancelFunc = context.WithCancel(ctx)
+
 	grpcServer := servers.NewGrpcServer(e.cfg)
-	e.cancelFunc = grpcServer.Shutdown
-	lis, err := e.cfg.CreateListener()
-	if err != nil {
-		grpclog.Fatalln(err.Error())
+	groclis := e.cfg.GRPC()
+
+	httpServer := servers.NewHTTPServer(e.cfg)
+	httpLis := e.cfg.HTTP()
+
+	{
+		grpclog.Infoln("starting grpc server....")
+		eg.Go(func() error {
+			return grpcServer.Serve(groclis)
+		})
+		grpclog.Infoln("starting http server....")
+		eg.Go(func() error {
+			return httpServer.Serve(httpLis)
+		})
+		grpclog.Infoln("starting multiplex server....")
+		eg.Go(e.cfg.Serve)
+		grpclog.Infoln("press ctr-c to shutdown")
+		eg.Go(func() error {
+			return e.watchShutdownSignal(ctx)
+		})
 	}
-	err = grpcServer.Serve(lis)
+	err = eg.Wait()
 	return errors.WithStack(err)
 }
 

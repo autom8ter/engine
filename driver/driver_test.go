@@ -16,19 +16,19 @@ func TestIsPlugin(t *testing.T) {
 }
 
 func TestNewPlugin(t *testing.T) {
-	this := driver.NewPlugin(ex.PluginFunc)
+	this := driver.NewPlugin(ex.GRPCFunc)
 	if !driver.IsPlugin(this) {
 		t.Fatal("not a plugin")
 	}
 }
 
 func TestNewPluginFunc(t *testing.T) {
-	this := driver.NewPluginFunc(ex.PluginFunc)
+	this := driver.NewGRPCFunc(ex.GRPCFunc)
 	if !driver.IsPlugin(this) {
 		t.Fatal("not a plugin")
 	}
 }
 
 func TestPluginFunc_RegisterWithServer(t *testing.T) {
-	ex.PluginFunc.RegisterWithServer(grpc.NewServer())
+	ex.GRPCFunc.RegisterWithServer(grpc.NewServer())
 }

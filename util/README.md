@@ -5,6 +5,12 @@
 
 ## Usage
 
+#### func  CancelFunc
+
+```go
+func CancelFunc(ctx context.Context, cancel func()) func() error
+```
+
 #### func  Debugf
 
 ```go
@@ -20,3 +26,9 @@ func Debugln(args ...interface{})
 ```
 Debugln is grpclog.Infoln(args...) but only executes if debug=true is set in
 your config or environmental variables
+
+#### func  Load
+
+```go
+func Load(path, symbol string) interface{}
+```

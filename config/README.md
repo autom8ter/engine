@@ -9,14 +9,14 @@
 
 ```go
 type Config struct {
-	Network            string   `json:"network"`
-	Address            string   `json:"address"`
-	Paths              []string `json:"paths"`
-	Symbol             string   `json:"symbol"`
+	Network            string `json:"network"`
+	Address            string `json:"address"`
 	Plugins            []driver.Plugin
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
-	Option             []grpc.ServerOption
+	ServerOptions      []grpc.ServerOption
+	RouterOptions      []RouterOption
+	HTTPOptions        []HTTPOption
 }
 ```
 
@@ -28,25 +28,41 @@ Config instance. Otherwise, defaults are set.
 #### func  New
 
 ```go
-func New(network, addr, symbol string) *Config
+func New(network, addr string) *Config
 ```
 New creates a config from your config file. If no config file is present, the
 resulting Config will have the following defaults: netowork: "tcp" address:
 ":3000" use the With method to continue to modify the resulting Config object
 
-#### func (*Config) CreateListener
+#### func (*Config) Any
 
 ```go
-func (c *Config) CreateListener() (net.Listener, error)
+func (c *Config) Any() net.Listener
 ```
-CreateListener creates a network listener from the network and address config
 
-#### func (*Config) LoadPlugins
+#### func (*Config) GRPC
 
 ```go
-func (c *Config) LoadPlugins()
+func (c *Config) GRPC() net.Listener
 ```
-LoadPlugins loads driver.Plugins from paths set with config.WithPluginPaths(...)
+
+#### func (*Config) HTTP
+
+```go
+func (c *Config) HTTP() net.Listener
+```
+
+#### func (*Config) HTTPHeaderField
+
+```go
+func (c *Config) HTTPHeaderField(name, value string) net.Listener
+```
+
+#### func (*Config) Serve
+
+```go
+func (c *Config) Serve() error
+```
 
 #### func (*Config) With
 
@@ -55,13 +71,21 @@ func (c *Config) With(opts ...Option) *Config
 ```
 With is used to configure/initialize a Config with custom options
 
+#### type HTTPOption
+
+```go
+type HTTPOption func(s *http.Server)
+```
+
+Option configures a http server.
+
 #### type Option
 
 ```go
 type Option func(*Config)
 ```
 
-Option configures a gRPC and a gateway server.
+Option configures a gRPC server.
 
 #### func  WithConnTimeout
 
@@ -96,6 +120,41 @@ WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
 engine runtime as opposed to go/plugins. See driver.Plugin for the interface
 definition.
 
+#### func  WithHTTPErrorLog
+
+```go
+func WithHTTPErrorLog(lg *log.Logger) Option
+```
+WithHTTPTLS adds a tls config to the http server
+
+#### func  WithHTTPReadHeaderTO
+
+```go
+func WithHTTPReadHeaderTO(dur time.Duration) Option
+```
+WithHTTPReadHeaderTO sets the http read header timeout
+
+#### func  WithHTTPReadTO
+
+```go
+func WithHTTPReadTO(dur time.Duration) Option
+```
+WithHTTPReadTO sets the http read timeout
+
+#### func  WithHTTPTLS
+
+```go
+func WithHTTPTLS(config *tls.Config) Option
+```
+WithHTTPTLS adds a tls config to the http server
+
+#### func  WithHTTPWriteTO
+
+```go
+func WithHTTPWriteTO(dur time.Duration) Option
+```
+WithHTTPWriteTO sets the http read header timeout
+
 #### func  WithMaxConcurrentStreams
 
 ```go
@@ -107,10 +166,18 @@ number of concurrent streams to each ServerTransport.
 #### func  WithPluginPaths
 
 ```go
-func WithPluginPaths(paths ...string) Option
+func WithPluginPaths(symbol string, paths ...string) Option
 ```
 WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
 ref: https://golang.org/pkg/plugin/
+
+#### func  WithRouterOptions
+
+```go
+func WithRouterOptions(opts ...RouterOption) Option
+```
+WithMaxConcurrentStreams returns a ServerOption that will apply a limit on the
+number of concurrent streams to each ServerTransport.
 
 #### func  WithStatsHandler
 
@@ -135,3 +202,11 @@ func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option
 ```
 WithUnaryInterceptors returns an Option that sets unary interceptor(s) for a
 gRPC server.
+
+#### type RouterOption
+
+```go
+type RouterOption func(r *mux.Router)
+```
+
+Option configures a http router.

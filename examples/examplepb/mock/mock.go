@@ -8,12 +8,12 @@ import (
 )
 
 type Example struct {
-	driver.PluginFunc
+	driver.GRPCFunc
 }
 
 func NewExample() Example {
 	e := Example{}
-	e.PluginFunc = func(s *grpc.Server) {
+	e.GRPCFunc = func(s *grpc.Server) {
 		examplepb.RegisterEchoServiceServer(s, e)
 	}
 	return e

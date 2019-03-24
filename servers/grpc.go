@@ -18,7 +18,7 @@ type GrpcServer struct {
 
 // NewGrpcServer creates a new GrpcServer instance.
 func NewGrpcServer(c *config.Config) driver.Server {
-	s := grpc.NewServer(c.Option...)
+	s := grpc.NewServer(c.ServerOptions...)
 	util.Debugln("creating grpc server")
 	reflection.Register(s)
 	util.Debugln("registered server reflection")

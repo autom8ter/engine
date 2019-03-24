@@ -10,9 +10,8 @@
 ```go
 type Engine interface {
 	With(opts ...config.Option) *Runtime
-	Config() *config.Config
 	Shutdown()
-	Serve() error
+	Serve(ctx context.Context) error
 }
 ```
 
@@ -21,7 +20,7 @@ Engine is an interface used to describe a server runtime
 #### func  New
 
 ```go
-func New(network, addr, symbol string) Engine
+func New(network, addr string) Engine
 ```
 New creates a new engine intstance.
 
@@ -34,17 +33,10 @@ type Runtime struct {
 
 Runtime is an implementation of the engine API.
 
-#### func (*Runtime) Config
-
-```go
-func (e *Runtime) Config() *config.Config
-```
-Config returns the runtimes current configuration
-
 #### func (*Runtime) Serve
 
 ```go
-func (e *Runtime) Serve() error
+func (e *Runtime) Serve(ctx context.Context) error
 ```
 Serve starts the runtime gRPC server.
 
