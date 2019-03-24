@@ -8,7 +8,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	c := config.New("tcp", ":4000", "Plugin")
+	c := config.New("tcp", ":4000")
 	if c == nil {
 		t.Fatal(errors.New("nil config"))
 	}

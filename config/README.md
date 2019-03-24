@@ -28,7 +28,7 @@ Config instance. Otherwise, defaults are set.
 #### func  New
 
 ```go
-func New(network, addr, symbol string) *Config
+func New(network, addr string) *Config
 ```
 New creates a config from your config file. If no config file is present, the
 resulting Config will have the following defaults: netowork: "tcp" address:
@@ -40,13 +40,6 @@ resulting Config will have the following defaults: netowork: "tcp" address:
 func (c *Config) CreateListener() (net.Listener, error)
 ```
 CreateListener creates a network listener from the network and address config
-
-#### func (*Config) LoadPlugins
-
-```go
-func (c *Config) LoadPlugins()
-```
-LoadPlugins loads driver.Plugins from paths set with config.WithPluginPaths(...)
 
 #### func (*Config) With
 
@@ -104,10 +97,10 @@ func WithMaxConcurrentStreams(num uint32) Option
 WithMaxConcurrentStreams returns a ServerOption that will apply a limit on the
 number of concurrent streams to each ServerTransport.
 
-#### func  WithPluginPaths
+#### func  WithPlugins
 
 ```go
-func WithPluginPaths(paths ...string) Option
+func WithPlugins(symbol string, paths ...string) Option
 ```
 WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
 ref: https://golang.org/pkg/plugin/

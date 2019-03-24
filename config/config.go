@@ -33,18 +33,16 @@ type Config struct {
 
 // New creates a config from your config file. If no config file is present, the resulting Config will have the following defaults: netowork: "tcp" address: ":3000"
 // use the With method to continue to modify the resulting Config object
-func New(network, addr, symbol string) *Config {
+func New(network, addr string) *Config {
 	if network == "" || addr == "" {
+		util.Debugf("empty network or address detected %s %s, setting defaults: tcp :3000\n", network, addr)
 		network = "tcp"
 		addr = ":3000"
-	}
-	if symbol == "" {
-		symbol = "Plugin"
 	}
 	c := &Config{
 		Network: network,
 		Address: addr,
-		Symbol:  symbol,
+		Symbol:  "Plugin",
 	}
 	return c
 }
@@ -69,7 +67,7 @@ func (c *Config) With(opts ...Option) *Config {
 }
 
 // LoadPlugins loads driver.Plugins from paths set with config.WithPluginPaths(...)
-func (c *Config) LoadPlugins() {
+func (c *Config) loadPlugins() {
 	for _, p := range c.Paths {
 		util.Debugf("registered path: %v\n", p)
 		plug, err := plugin.Open(p)

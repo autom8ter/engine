@@ -21,7 +21,7 @@ Engine is an interface used to describe a server runtime
 #### func  New
 
 ```go
-func New(network, addr, symbol string) Engine
+func New(network, addr string) Engine
 ```
 New creates a new engine intstance.
 

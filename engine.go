@@ -20,9 +20,9 @@ type Engine interface {
 }
 
 // New creates a new engine intstance.
-func New(network, addr, symbol string) Engine {
+func New(network, addr string) Engine {
 	return &Runtime{
-		cfg: config.New(network, addr, symbol),
+		cfg: config.New(network, addr),
 	}
 }
 

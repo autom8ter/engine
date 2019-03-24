@@ -11,7 +11,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"os"
 	"testing"
-	"time"
 )
 
 func init() {
@@ -21,8 +20,8 @@ func init() {
 }
 
 func TestGRPC(t *testing.T) {
-	var eng = engine.New("tcp", ":3002", "Plugin").With(
-		config.WithPluginPaths("bin/example.so"),
+	var eng = engine.New("tcp", ":3002").With(
+		config.WithPlugins("Plugin", "bin/example.so"),
 	)
 	go eng.Serve()
 	var grpcCli = client.ExampleClient(":3002")
@@ -35,18 +34,4 @@ func TestGRPC(t *testing.T) {
 	}
 	fmt.Println("GRPC RESPONSE:")
 	fmt.Println(util.ToPrettyJsonString(resp))
-}
-
-func temp() {
-	// consider using flags, env vars. or a config file to populate the inputs needed to create an engine instance
-	if err := engine.New("tcp", ":3002", "Plugin").With(
-		config.WithDebug(),
-		config.WithStatsHandler(nil),
-		config.WithConnTimeout(2*time.Minute),
-		config.WithCreds(nil),
-		config.WithMaxConcurrentStreams(1000),
-		config.WithPluginPaths("bin/example.so"),
-	).Serve(); err != nil {
-		grpclog.Fatalln(err.Error())
-	}
 }
