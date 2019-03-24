@@ -29,29 +29,30 @@ func NewExample() Example {
 //examplepb methods excluded for brevity
 
 //The compiled plugin file will be loaded at runtime if its set in your config path.
-//A basic example with all config options:
+//example:
 func main() {
 	if err := engine.New("tcp", ":8080").With(
 		//general options:
-		config.WithDebug(), //adds verbose logging for development
-		config.WithMaxConcurrentStreams(1000),//sets max concurrent server streams
+		config.WithDebug(),                    //adds verbose logging for development
+		config.WithMaxConcurrentStreams(1000), //sets max concurrent server streams
 
 		//plugins:
 		config.WithPlugins("Plugin", "bin/example.so"), //loads a plugin with the exported symbol from the specified path
-		config.WithChannelz(), //adds a channelz service
-		config.WithReflection(), //adds a reflection service
-		config.WithHealthz(), //adds a healthz service
+		config.WithChannelz(),                          //adds a channelz service
+		config.WithReflection(),                        //adds a reflection service
+		config.WithHealthz(),                           //adds a healthz service
 
 		//unary middleware:
-		config.WithUnaryLoggingMiddleware(), // adds a unary logging rmiddleware
+		config.WithUnaryUUIDMiddleware(),  //adds a unary uuid middleware
+		config.WithUnaryTraceMiddleware(),    // adds a streaming opentracing middleware
+		config.WithUnaryLoggingMiddleware(),  // adds a unary logging rmiddleware
 		config.WithUnaryRecoveryMiddleware(), // adds a unary recovery middleware
-		config.WithUnaryTraceMiddleware(),// adds a streaming opentracing middleware
-
 
 		//streaming middleware
-		config.WithStreamLoggingMiddleware(), //adds a streaming logging middleware
+		config.WithStreamUUIDMiddleware(), //adds a streaming uuid middleware
+		config.WithStreamTraceMiddleware(),    // adds a streaming opentracing middleware
+		config.WithStreamLoggingMiddleware(),  //adds a streaming logging middleware
 		config.WithStreamRecoveryMiddleware(), // adds a streaming recovery middleware
-		config.WithStreamTraceMiddleware(),// adds a streaming opentracing middleware
 
 	).Serve(); err != nil {
 		log.Fatalln(err.Error())
@@ -108,6 +109,9 @@ func main() {
 - [x] Stream logger middleware option
 - [x] Stream recovery middleware option
 - [x] Stream tracing middleware option
+
+- [ ] Unary metrics middleware option
+- [ ] Stream metrics middleware option
 
 - [ ] Auth middleware option
 

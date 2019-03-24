@@ -158,3 +158,15 @@ func WithStreamTraceMiddleware() Option {
 		c.StreamInterceptors = append(c.StreamInterceptors, grpc_opentracing.StreamServerInterceptor())
 	}
 }
+
+func WithUnaryUUIDMiddleware() Option {
+	return func(c *Config) {
+		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryUUID())
+	}
+}
+
+func WithStreamUUIDMiddleware() Option {
+	return func(c *Config) {
+		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamUUID())
+	}
+}

@@ -20,3 +20,21 @@ func Debugln(args ...interface{})
 ```
 Debugln is grpclog.Infoln(args...) but only executes if debug=true is set in
 your config or environmental variables
+
+#### func  NewMultiStreamServerInterceptor
+
+```go
+func NewMultiStreamServerInterceptor(sints ...grpc.StreamServerInterceptor) grpc.StreamServerInterceptor
+```
+
+#### func  NewMultiUnaryServerInterceptor
+
+```go
+func NewMultiUnaryServerInterceptor(uints ...grpc.UnaryServerInterceptor) grpc.UnaryServerInterceptor
+```
+
+#### func  NewServerStreamWithContext
+
+```go
+func NewServerStreamWithContext(stream grpc.ServerStream, ctx context.Context) grpc.ServerStream
+```

@@ -19,14 +19,16 @@ func main() {
 		config.WithHealthz(),                           //adds a healthz service
 
 		//unary middleware:
+		config.WithUnaryUUIDMiddleware(),  //adds a unary uuid middleware
+		config.WithUnaryTraceMiddleware(),    // adds a streaming opentracing middleware
 		config.WithUnaryLoggingMiddleware(),  // adds a unary logging rmiddleware
 		config.WithUnaryRecoveryMiddleware(), // adds a unary recovery middleware
-		config.WithUnaryTraceMiddleware(),    // adds a streaming opentracing middleware
 
 		//streaming middleware
+		config.WithStreamUUIDMiddleware(), //adds a streaming uuid middleware
+		config.WithStreamTraceMiddleware(),    // adds a streaming opentracing middleware
 		config.WithStreamLoggingMiddleware(),  //adds a streaming logging middleware
 		config.WithStreamRecoveryMiddleware(), // adds a streaming recovery middleware
-		config.WithStreamTraceMiddleware(),    // adds a streaming opentracing middleware
 
 	).Serve(); err != nil {
 		log.Fatalln(err.Error())

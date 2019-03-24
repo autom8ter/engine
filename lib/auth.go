@@ -1,5 +1,0 @@
-package lib
-
-func DefaultUnaryInterceptors() {
-
-}
