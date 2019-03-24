@@ -31,23 +31,22 @@ func NewExample() Example {
 //The compiled plugin file will be loaded at runtime if its set in your config path.
 //A basic example with all config options:
 func main() {
-	// consider using flags, env vars. or a config file to populate the inputs needed to create an engine instance
-    	if err := engine.New("tcp", ":3002", "Plugin").With(
-    		//verbose logging for development
-    		config.WithDebug(),
-    		config.WithStatsHandler(nil),
-    		//connection timeout
-    		config.WithConnTimeout(2 *time.Minute),
-    		//transport credentials ref:https://godoc.org/google.golang.org/grpc/credentials
-    		config.WithCreds(nil),
-    		//max concurrent streams
-    		config.WithMaxConcurrentStreams(1000),
-    		//filepath to plugin
-    		config.WithPluginPaths("bin/example.so"),
-    	).Serve(); err != nil {
-    		grpclog.Fatalln(err.Error())
-    	}
+	e := engine.New("tcp", ":8080").With(
+		config.WithDebug(), //adds verbose logging for development
+		config.WithPlugins("Plugin", "bin/example.so"), //loads a plugin with the exported symbol from the specified path
+		config.WithChannelz(), //adds a channelz service
+		config.WithReflection(),//adds a reflection service
+		config.WithHealthz(),//adds a healthz service
+		config.WithUnaryLogger(),//adds a unary logger
+		config.WithStreamLogger(),//adss a streaming logger
+		config.WithMaxConcurrentStreams(1000),//sets max concurrent server streams
+	)
+	defer e.Shutdown()
+	if err := e.Serve(); err != nil {
+		log.Fatalln(err.Error())
+	}
 }
+
 ```
 ---
 
@@ -89,8 +88,12 @@ func main() {
 - [x] Support for custom and chained Unary Interceptors
 - [x] Support for custom and chained Stream Interceptors
 - [x] GoDoc documentation for every exported Method
-- [x] Channelz ref: https://godoc.org/google.golang.org/grpc/channelz
-- [x] Reflection ref: https://godoc.org/google.golang.org/grpc/reflection
+- [x] Channelz service option ref: https://godoc.org/google.golang.org/grpc/channelz
+- [x] Reflection service option ref: https://godoc.org/google.golang.org/grpc/reflection
+- [x] Healthz service option ref: https://godoc.org/google.golang.org/grpc/health
+- [x] Unary logger middleware option
+- [x] Stream logger middleware option
+- [ ] Auth middleware option
 
 ---
 

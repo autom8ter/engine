@@ -19,6 +19,7 @@ type Option func(*Config)
 // WithUnaryInterceptors returns an Option that sets unary interceptor(s) for a gRPC server.
 func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
 	return func(c *Config) {
+		util.Debugf("registered: %v unary interceptors", len(c.UnaryInterceptors)+1)
 		c.UnaryInterceptors = append(c.UnaryInterceptors, interceptors...)
 	}
 }
@@ -26,6 +27,7 @@ func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
 // WithGrpcServerStreamInterceptors returns an Option that sets stream interceptor(s) for a gRPC server.
 func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option {
 	return func(c *Config) {
+		util.Debugf("registered: %v stream interceptors", len(c.StreamInterceptors)+1)
 		c.StreamInterceptors = append(c.StreamInterceptors, interceptors...)
 	}
 }
@@ -63,6 +65,7 @@ func WithDebug() Option {
 
 // WithCreds returns a ServerOption that sets credentials for server connections.
 func WithCreds(creds credentials.TransportCredentials) Option {
+	util.Debugln("adding credentials")
 	return func(c *Config) {
 		c.Option = append(c.Option, grpc.Creds(creds))
 	}
@@ -70,6 +73,7 @@ func WithCreds(creds credentials.TransportCredentials) Option {
 
 // WithStatsHandler returns a ServerOption that sets the stats handler for the server.
 func WithStatsHandler(h stats.Handler) Option {
+	util.Debugln("adding stats handler")
 	return func(c *Config) {
 		c.Option = append(c.Option, grpc.StatsHandler(h))
 	}
@@ -78,6 +82,7 @@ func WithStatsHandler(h stats.Handler) Option {
 // WithStatsHandler ConnectionTimeout returns a ServerOption that sets the timeout for connection establishment (up to and including HTTP/2 handshaking) for all new connections.
 // If this is not set, the default is 120 seconds.
 func WithConnTimeout(t time.Duration) Option {
+	util.Debugf("adding connection timeout: %s\n", t.String())
 	return func(c *Config) {
 		c.Option = append(c.Option, grpc.ConnectionTimeout(t))
 	}
@@ -86,6 +91,7 @@ func WithConnTimeout(t time.Duration) Option {
 // WithMaxConcurrentStreams returns a ServerOption that will apply a limit on the number
 // of concurrent streams to each ServerTransport.
 func WithMaxConcurrentStreams(num uint32) Option {
+	util.Debugf("adding max connection streams: %v\n", num)
 	return func(c *Config) {
 		c.Option = append(c.Option, grpc.MaxConcurrentStreams(num))
 	}
@@ -93,6 +99,7 @@ func WithMaxConcurrentStreams(num uint32) Option {
 
 // WithChannelz adds grpc server channelz to the list of plugins ref: https://godoc.org/google.golang.org/grpc/channelz/grpc_channelz_v1
 func WithChannelz() Option {
+	util.Debugf("adding grpc channelz")
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, lib.NewChannelz())
 	}
@@ -100,6 +107,7 @@ func WithChannelz() Option {
 
 // WithReflection adds grpc server reflection to the list of plugins ref: https://godoc.org/google.golang.org/grpc/reflection
 func WithReflection() Option {
+	util.Debugf("adding grpc reflection")
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, lib.NewReflection())
 	}
@@ -108,7 +116,20 @@ func WithReflection() Option {
 
 // WithHealthz exposes server's health and it must be imported to enable support for client-side health checks and adds it to plugins. ref: https://godoc.org/google.golang.org/grpc/health
 func WithHealthz() Option {
+	util.Debugf("adding grpc healthz")
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, lib.NewHealthz())
+	}
+}
+
+func WithUnaryLogger() Option {
+	return func(c *Config) {
+		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryLogger())
+	}
+}
+
+func WithStreamLogger() Option {
+	return func(c *Config) {
+		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamLogger())
 	}
 }

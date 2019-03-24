@@ -6,6 +6,7 @@ package config
 import (
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/util"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
@@ -60,7 +61,6 @@ func (c *Config) CreateListener() (net.Listener, error) {
 // With is used to configure/initialize a Config with custom options
 func (c *Config) With(opts ...Option) *Config {
 	for _, f := range opts {
-		grpclog.Infoln("Adding option")
 		f(c)
 	}
 	return c
@@ -91,4 +91,15 @@ func (c *Config) loadPlugins() {
 	if len(c.Plugins) == 0 {
 		grpclog.Warningln("No plugins detected. 0 registered plugins.")
 	}
+}
+
+func (c *Config) ServerOptions() []grpc.ServerOption {
+	return append(
+		[]grpc.ServerOption{
+			grpc_middleware.WithUnaryServerChain(c.UnaryInterceptors...),
+			grpc_middleware.WithStreamServerChain(c.StreamInterceptors...),
+		},
+
+	c.Option...,
+	)
 }
