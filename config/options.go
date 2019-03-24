@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/autom8ter/engine/driver"
+	"github.com/autom8ter/engine/lib"
 	"github.com/autom8ter/engine/util"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -87,5 +88,27 @@ func WithConnTimeout(t time.Duration) Option {
 func WithMaxConcurrentStreams(num uint32) Option {
 	return func(c *Config) {
 		c.Option = append(c.Option, grpc.MaxConcurrentStreams(num))
+	}
+}
+
+// WithChannelz adds grpc server channelz to the list of plugins ref: https://godoc.org/google.golang.org/grpc/channelz/grpc_channelz_v1
+func WithChannelz() Option {
+	return func(c *Config) {
+		c.Plugins = append(c.Plugins, lib.NewChannelz())
+	}
+}
+
+// WithReflection adds grpc server reflection to the list of plugins ref: https://godoc.org/google.golang.org/grpc/reflection
+func WithReflection() Option {
+	return func(c *Config) {
+		c.Plugins = append(c.Plugins, lib.NewReflection())
+	}
+}
+
+
+// WithHealthz exposes server's health and it must be imported to enable support for client-side health checks and adds it to plugins. ref: https://godoc.org/google.golang.org/grpc/health
+func WithHealthz() Option {
+	return func(c *Config) {
+		c.Plugins = append(c.Plugins, lib.NewHealthz())
 	}
 }

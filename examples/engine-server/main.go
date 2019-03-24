@@ -11,6 +11,9 @@ func main() {
 	e := engine.New("tcp", ":8080").With(
 		config.WithDebug(),
 		config.WithPlugins("Plugin", "bin/example.so"),
+		config.WithChannelz(),
+		config.WithReflection(),
+		config.WithHealthz(),
 		config.WithUnaryInterceptors(logging.NewUnaryLogger()),
 	)
 	defer e.Shutdown()
