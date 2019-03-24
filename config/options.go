@@ -4,6 +4,8 @@ import (
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/lib"
 	"github.com/autom8ter/engine/util"
+	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -113,7 +115,6 @@ func WithReflection() Option {
 	}
 }
 
-
 // WithHealthz exposes server's health and it must be imported to enable support for client-side health checks and adds it to plugins. ref: https://godoc.org/google.golang.org/grpc/health
 func WithHealthz() Option {
 	util.Debugf("adding grpc healthz")
@@ -122,14 +123,38 @@ func WithHealthz() Option {
 	}
 }
 
-func WithUnaryLogger() Option {
+func WithUnaryLoggingMiddleware() Option {
 	return func(c *Config) {
 		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryLogger())
 	}
 }
 
-func WithStreamLogger() Option {
+func WithStreamLoggingMiddleware() Option {
 	return func(c *Config) {
 		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamLogger())
+	}
+}
+
+func WithUnaryRecoveryMiddleware() Option {
+	return func(c *Config) {
+		c.UnaryInterceptors = append(c.UnaryInterceptors, grpc_recovery.UnaryServerInterceptor())
+	}
+}
+
+func WithStreamRecoveryMiddleware() Option {
+	return func(c *Config) {
+		c.StreamInterceptors = append(c.StreamInterceptors, grpc_recovery.StreamServerInterceptor())
+	}
+}
+
+func WithUnaryTraceMiddleware() Option {
+	return func(c *Config) {
+		c.UnaryInterceptors = append(c.UnaryInterceptors, grpc_opentracing.UnaryServerInterceptor())
+	}
+}
+
+func WithStreamTraceMiddleware() Option {
+	return func(c *Config) {
+		c.StreamInterceptors = append(c.StreamInterceptors, grpc_opentracing.StreamServerInterceptor())
 	}
 }

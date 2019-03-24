@@ -31,18 +31,29 @@ func NewExample() Example {
 //The compiled plugin file will be loaded at runtime if its set in your config path.
 //A basic example with all config options:
 func main() {
-	e := engine.New("tcp", ":8080").With(
+	if err := engine.New("tcp", ":8080").With(
+		//general options:
 		config.WithDebug(), //adds verbose logging for development
+		config.WithMaxConcurrentStreams(1000),//sets max concurrent server streams
+
+		//plugins:
 		config.WithPlugins("Plugin", "bin/example.so"), //loads a plugin with the exported symbol from the specified path
 		config.WithChannelz(), //adds a channelz service
-		config.WithReflection(),//adds a reflection service
-		config.WithHealthz(),//adds a healthz service
-		config.WithUnaryLogger(),//adds a unary logger
-		config.WithStreamLogger(),//adss a streaming logger
-		config.WithMaxConcurrentStreams(1000),//sets max concurrent server streams
-	)
-	defer e.Shutdown()
-	if err := e.Serve(); err != nil {
+		config.WithReflection(), //adds a reflection service
+		config.WithHealthz(), //adds a healthz service
+
+		//unary middleware:
+		config.WithUnaryLoggingMiddleware(), // adds a unary logging rmiddleware
+		config.WithUnaryRecoveryMiddleware(), // adds a unary recovery middleware
+		config.WithUnaryTraceMiddleware(),// adds a streaming opentracing middleware
+
+
+		//streaming middleware
+		config.WithStreamLoggingMiddleware(), //adds a streaming logging middleware
+		config.WithStreamRecoveryMiddleware(), // adds a streaming recovery middleware
+		config.WithStreamTraceMiddleware(),// adds a streaming opentracing middleware
+
+	).Serve(); err != nil {
 		log.Fatalln(err.Error())
 	}
 }
@@ -92,7 +103,12 @@ func main() {
 - [x] Reflection service option ref: https://godoc.org/google.golang.org/grpc/reflection
 - [x] Healthz service option ref: https://godoc.org/google.golang.org/grpc/health
 - [x] Unary logger middleware option
+- [x] Unary recovery middleware option
+- [x] Unary tracing middleware option
 - [x] Stream logger middleware option
+- [x] Stream recovery middleware option
+- [x] Stream tracing middleware option
+
 - [ ] Auth middleware option
 
 ---

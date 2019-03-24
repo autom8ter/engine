@@ -41,6 +41,12 @@ func (c *Config) CreateListener() (net.Listener, error)
 ```
 CreateListener creates a network listener from the network and address config
 
+#### func (*Config) ServerOptions
+
+```go
+func (c *Config) ServerOptions() []grpc.ServerOption
+```
+
 #### func (*Config) With
 
 ```go
@@ -55,6 +61,14 @@ type Option func(*Config)
 ```
 
 Option configures a gRPC and a gateway server.
+
+#### func  WithChannelz
+
+```go
+func WithChannelz() Option
+```
+WithChannelz adds grpc server channelz to the list of plugins ref:
+https://godoc.org/google.golang.org/grpc/channelz/grpc_channelz_v1
 
 #### func  WithConnTimeout
 
@@ -89,6 +103,15 @@ WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
 engine runtime as opposed to go/plugins. See driver.Plugin for the interface
 definition.
 
+#### func  WithHealthz
+
+```go
+func WithHealthz() Option
+```
+WithHealthz exposes server's health and it must be imported to enable support
+for client-side health checks and adds it to plugins. ref:
+https://godoc.org/google.golang.org/grpc/health
+
 #### func  WithMaxConcurrentStreams
 
 ```go
@@ -104,6 +127,14 @@ func WithPlugins(symbol string, paths ...string) Option
 ```
 WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
 ref: https://golang.org/pkg/plugin/
+
+#### func  WithReflection
+
+```go
+func WithReflection() Option
+```
+WithReflection adds grpc server reflection to the list of plugins ref:
+https://godoc.org/google.golang.org/grpc/reflection
 
 #### func  WithStatsHandler
 
@@ -121,6 +152,24 @@ func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option
 WithGrpcServerStreamInterceptors returns an Option that sets stream
 interceptor(s) for a gRPC server.
 
+#### func  WithStreamLoggingMiddleware
+
+```go
+func WithStreamLoggingMiddleware() Option
+```
+
+#### func  WithStreamRecoveryMiddleware
+
+```go
+func WithStreamRecoveryMiddleware() Option
+```
+
+#### func  WithStreamTraceMiddleware
+
+```go
+func WithStreamTraceMiddleware() Option
+```
+
 #### func  WithUnaryInterceptors
 
 ```go
@@ -128,3 +177,21 @@ func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option
 ```
 WithUnaryInterceptors returns an Option that sets unary interceptor(s) for a
 gRPC server.
+
+#### func  WithUnaryLoggingMiddleware
+
+```go
+func WithUnaryLoggingMiddleware() Option
+```
+
+#### func  WithUnaryRecoveryMiddleware
+
+```go
+func WithUnaryRecoveryMiddleware() Option
+```
+
+#### func  WithUnaryTraceMiddleware
+
+```go
+func WithUnaryTraceMiddleware() Option
+```

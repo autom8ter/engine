@@ -9,12 +9,11 @@ import (
 )
 
 type Output struct {
-	Start string `json:"start"`
-	Method string `json:"method"`
-	Request interface{} `json:"request"`
-	Duration string `json:"duration"`
+	Start    string      `json:"start"`
+	Method   string      `json:"method"`
+	Request  interface{} `json:"request"`
+	Duration string      `json:"duration"`
 }
-
 
 func NewUnaryLogger() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {

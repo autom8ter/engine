@@ -100,6 +100,6 @@ func (c *Config) ServerOptions() []grpc.ServerOption {
 			grpc_middleware.WithStreamServerChain(c.StreamInterceptors...),
 		},
 
-	c.Option...,
+		c.Option...,
 	)
 }

@@ -3,9 +3,9 @@ package lib
 import (
 	"github.com/autom8ter/engine/driver"
 	"google.golang.org/grpc"
+	channelz "google.golang.org/grpc/channelz/grpc_channelz_v1"
 	"google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/grpclog"
-	channelz "google.golang.org/grpc/channelz/grpc_channelz_v1"
 )
 
 type Channelz struct {
