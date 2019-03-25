@@ -94,7 +94,7 @@ func (c *Config) loadPlugins() {
 }
 
 func (c *Config) ServerOptions() []grpc.ServerOption {
-	return append(
+	opts := append(
 		[]grpc.ServerOption{
 			grpc_middleware.WithUnaryServerChain(c.UnaryInterceptors...),
 			grpc_middleware.WithStreamServerChain(c.StreamInterceptors...),
@@ -102,4 +102,8 @@ func (c *Config) ServerOptions() []grpc.ServerOption {
 
 		c.Option...,
 	)
+	grpclog.Infof("total unary interceptors: %v\n", len(c.UnaryInterceptors))
+	grpclog.Infof("total stream interceptors: %v\n", len(c.StreamInterceptors))
+	grpclog.Infof("total server options: %v\n", len(opts))
+	return opts
 }

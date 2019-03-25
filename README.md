@@ -31,6 +31,9 @@ func NewExample() Example {
 //The compiled plugin file will be loaded at runtime if its set in your config path.
 //example:
 func main() {
+	dbctx := context.Background()
+	mongoClient := lib.MongoClient("mongodb://localhost:27017", dbctx)
+
 	if err := engine.New("tcp", ":8080").With(
 		//general options:
 		config.WithDebug(),                    //adds verbose logging for development
@@ -43,13 +46,15 @@ func main() {
 		config.WithHealthz(),                           //adds a healthz service
 
 		//unary middleware:
-		config.WithUnaryUUIDMiddleware(),  //adds a unary uuid middleware
-		config.WithUnaryTraceMiddleware(),    // adds a streaming opentracing middleware
-		config.WithUnaryLoggingMiddleware(),  // adds a unary logging rmiddleware
-		config.WithUnaryRecoveryMiddleware(), // adds a unary recovery middleware
+		config.WithUnaryUUIDMiddleware(),                                                     //adds a unary uuid middleware
+		config.WithUnaryPingMongoMiddleware(mongoClient, dbctx),                              //ping mongo db
+		config.WithUnarySaveToMongoMiddleware(mongoClient, "testdb", "testcoll", "document"), //adds the request object to mongodb under the given dbName, collection, and key extracted from the request context
+		config.WithUnaryTraceMiddleware(),                                                    // adds a streaming opentracing middleware
+		config.WithUnaryLoggingMiddleware(),                                                  // adds a unary logging rmiddleware
+		config.WithUnaryRecoveryMiddleware(),                                                 // adds a unary recovery middleware
 
 		//streaming middleware
-		config.WithStreamUUIDMiddleware(), //adds a streaming uuid middleware
+		config.WithStreamUUIDMiddleware(),     //adds a streaming uuid middleware
 		config.WithStreamTraceMiddleware(),    // adds a streaming opentracing middleware
 		config.WithStreamLoggingMiddleware(),  //adds a streaming logging middleware
 		config.WithStreamRecoveryMiddleware(), // adds a streaming recovery middleware
@@ -58,6 +63,23 @@ func main() {
 		log.Fatalln(err.Error())
 	}
 }
+
+/*
+Output:
+INFO: 2019/03/24 18:44:43 registered path: bin/example.so
+INFO: 2019/03/24 18:44:43 registered plugin: *main.Example
+INFO: 2019/03/24 18:44:43 total unary interceptors: 6
+INFO: 2019/03/24 18:44:43 total stream interceptors: 5
+INFO: 2019/03/24 18:44:43 total server options: 3
+INFO: 2019/03/24 18:44:43 creating grpc server
+INFO: 2019/03/24 18:44:43 plugin count: 1
+INFO: 2019/03/24 18:44:43 plugin count: 2
+INFO: 2019/03/24 18:44:43 plugin count: 3
+INFO: 2019/03/24 18:44:43 plugin count: 4
+INFO: 2019/03/24 18:44:43 creating server listener tcp :8080
+INFO: 2019/03/24 18:44:43 gRPC server is starting [::]:8080
+
+*/
 
 ```
 ---

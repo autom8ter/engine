@@ -190,10 +190,22 @@ gRPC server.
 func WithUnaryLoggingMiddleware() Option
 ```
 
+#### func  WithUnaryPingMongoMiddleware
+
+```go
+func WithUnaryPingMongoMiddleware(client *mongo.Client, ctx context.Context) Option
+```
+
 #### func  WithUnaryRecoveryMiddleware
 
 ```go
 func WithUnaryRecoveryMiddleware() Option
+```
+
+#### func  WithUnarySaveToMongoMiddleware
+
+```go
+func WithUnarySaveToMongoMiddleware(client *mongo.Client, dbName, collectionName string, docKey interface{}) Option
 ```
 
 #### func  WithUnaryTraceMiddleware

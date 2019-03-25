@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"google.golang.org/grpc/grpclog"
 	"os"
 	"strings"
@@ -18,4 +19,12 @@ func Debugln(args ...interface{}) {
 	if strings.Contains(os.Getenv("DEBUG"), "t") || strings.Contains(os.Getenv("DEBUG"), "T") {
 		grpclog.Infoln(args...)
 	}
+}
+
+func FromContext(ctx context.Context, obj interface{}) string {
+	v, ok := ctx.Value(obj).(string)
+	if !ok {
+		grpclog.Warningln("failed to retrieve object from context")
+	}
+	return v
 }

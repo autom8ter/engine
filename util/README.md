@@ -21,6 +21,12 @@ func Debugln(args ...interface{})
 Debugln is grpclog.Infoln(args...) but only executes if debug=true is set in
 your config or environmental variables
 
+#### func  FromContext
+
+```go
+func FromContext(ctx context.Context, obj interface{}) string
+```
+
 #### func  NewMultiStreamServerInterceptor
 
 ```go
