@@ -9,16 +9,13 @@ Contributers: Coleman Word
 License: MIT
 
 ```go
-//Exported variable named Plugin, used to build with go/plugin
-//Compile plugin and add to your config path to be loaded by the engine instance
-// ex: go build -buildmode=plugin -o bin/example.so examplepb/plugin.go
-var Plugin  Example
 
 //Embeded driver.PluginFunc is used to satisfy the driver.Plugin interface
 type Example struct {
 	driver.PluginFunc
 }
-//
+
+//create new example with the generated registration function from grpc
 func NewExample() Example {
 	e := Example{}
 	e.PluginFunc = func(s *grpc.Server) {
@@ -28,8 +25,6 @@ func NewExample() Example {
 }
 //examplepb methods excluded for brevity
 
-//The compiled plugin file will be loaded at runtime if its set in your config path.
-//example:
 func main() {
 	if err := engine.New("tcp", ":8080").With(
 		//general options:
@@ -37,10 +32,10 @@ func main() {
 		config.WithMaxConcurrentStreams(1000), //sets max concurrent server streams
 
 		//plugins:
-		config.WithPlugins("Plugin", "bin/example.so"), //loads a plugin with the exported symbol from the specified path
-		config.WithChannelz(),                          //adds a channelz service
-		config.WithReflection(),                        //adds a reflection service
-		config.WithHealthz(),                           //adds a healthz service
+		config.WithChannelz(),   //adds a channelz service
+		config.WithReflection(), //adds a reflection service
+		config.WithHealthz(),    //adds a healthz service
+		config.WithPlugins(examplepb.NewExample()),
 
 		//unary middleware:
 		config.WithUnaryUUIDMiddleware(),     //adds a unary uuid middleware
@@ -74,70 +69,18 @@ Unary_Interceptors: 4
 Stream_Interceptors: 4
 Server_Options: 1
 Plugins: 4
-Plugin_Paths: [bin/example.so]
-Plugin_Symbol: Plugin
 Network: tcp
 Address: :8080
 ------------------------------------------------
 
 
+
 */
 
 ```
----
-
-## Table of Contents
-
-- [Engine](#engine)
-  * [Table of Contents](#table-of-contents)
-  * [Overview](#overview)
-  * [Features/Scope/Roadmap](#features-scope-roadmap)
-  * [Driver](#driver)
-  * [Grpc Middlewares](#grpc-middlewares)
-    + [Key Functions:](#key-functions-)
-    + [Example(recovery):](#example-recovery--)
-  * [GoDoc](#godoc)
-      - [type Engine](#type-engine)
-      - [func  New](#func--new)
-      - [type Runtime](#type-runtime)
-      - [func (*Runtime) Config](#func---runtime--config)
-      - [func (*Runtime) Serve](#func---runtime--serve)
-      - [func (*Runtime) Shutdown](#func---runtime--shutdown)
-      - [func (*Runtime) With](#func---runtime--with)
-  * [Limitations](#limitations)
-  
----
-
-## Overview
-
-- Engine serves [go/plugins](https://golang.org/pkg/plugin/) that are dynamically loaded at runtime.
-- Plugins must export a type that implements the driver.Plugin interface: RegisterWithServer(s *grpc.Server)
-- Engine decouples the server runtime from grpc service development so that plugins can be added as externally compiled files that can be added to a deployment from local storage without making changes to the engine server.
 
 ---
 
-## Features/Scope/Roadmap
-
-- [x] Load grpc services from go/plugins at runtime that satisfy driver.Plugin
-- [x] Support for loading driver.Plugins directly(no go/plugins)
-- [x] Support for custom gRPC Server options
-- [x] Support for custom and chained Unary Interceptors
-- [x] Support for custom and chained Stream Interceptors
-- [x] GoDoc documentation for every exported Method
-- [x] Channelz service option ref: https://godoc.org/google.golang.org/grpc/channelz
-- [x] Reflection service option ref: https://godoc.org/google.golang.org/grpc/reflection
-- [x] Healthz service option ref: https://godoc.org/google.golang.org/grpc/health
-- [x] Unary logger middleware option
-- [x] Unary recovery middleware option
-- [x] Unary tracing middleware option
-- [x] Stream logger middleware option
-- [x] Stream recovery middleware option
-- [x] Stream tracing middleware option
-- [x] Unary metrics middleware option
-- [x] Stream metrics middleware option
-
-
----
 
 ## Driver
 
@@ -161,6 +104,27 @@ func (p PluginFunc) RegisterWithServer(s *grpc.Server) {
 }
 
 ```
+
+---
+
+## Features/Scope/Roadmap
+
+- [x] Support for custom gRPC Server options
+- [x] Support for custom and chained Unary Interceptors
+- [x] Support for custom and chained Stream Interceptors
+- [x] GoDoc documentation for every exported Method
+- [x] Channelz service option ref: https://godoc.org/google.golang.org/grpc/channelz
+- [x] Reflection service option ref: https://godoc.org/google.golang.org/grpc/reflection
+- [x] Healthz service option ref: https://godoc.org/google.golang.org/grpc/health
+- [x] Unary logger middleware option
+- [x] Unary recovery middleware option
+- [x] Unary tracing middleware option
+- [x] Stream logger middleware option
+- [x] Stream recovery middleware option
+- [x] Stream tracing middleware option
+- [x] Unary metrics middleware option
+- [x] Stream metrics middleware option
+- [x] Load grpc services from go/plugins at runtime that satisfy driver.Plugin
 
 
 ---

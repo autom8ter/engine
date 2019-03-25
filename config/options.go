@@ -34,16 +34,6 @@ func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option
 	}
 }
 
-// WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
-//ref: https://golang.org/pkg/plugin/
-func WithLoadedPlugins(symbol string, paths ...string) Option {
-	return func(c *Config) {
-		c.Symbol = symbol
-		c.Paths = append(c.Paths, paths...)
-		c.loadPlugins()
-	}
-}
-
 // WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
 // See driver.Plugin for the interface definition.
 func WithPlugins(svrs ...driver.Plugin) Option {

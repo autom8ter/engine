@@ -18,9 +18,6 @@ func TestNew(t *testing.T) {
 	if c.Address != ":4000" {
 		t.Fatal(errors.New("expected :4000"))
 	}
-	if c.Symbol != "Plugin" {
-		t.Fatal(errors.New("expected Plugin"))
-	}
 	c.With(
 		config.WithDebug(),
 	)

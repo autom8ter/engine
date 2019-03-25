@@ -68,12 +68,10 @@ Unary_Interceptors: %v
 Stream_Interceptors: %v
 Server_Options: %v
 Plugins: %v
-Plugin_Paths: %v
-Plugin_Symbol: %s
 Network: %s
 Address: %s
 ------------------------------------------------
-`, len(e.cfg.UnaryInterceptors), len(e.cfg.StreamInterceptors), len(e.cfg.Option), len(e.cfg.Plugins), e.cfg.Paths, e.cfg.Symbol, e.cfg.Network, e.cfg.Address))
+`, len(e.cfg.UnaryInterceptors), len(e.cfg.StreamInterceptors), len(e.cfg.Option), len(e.cfg.Plugins), e.cfg.Network, e.cfg.Address))
 	err = grpcServer.Serve(lis)
 	return errors.WithStack(err)
 }

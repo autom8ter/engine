@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"net"
 	"os"
-	"plugin"
 )
 
 func init() {
@@ -22,10 +21,8 @@ func init() {
 // Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
 // Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
 type Config struct {
-	Network            string   `json:"network"`
-	Address            string   `json:"address"`
-	Paths              []string `json:"paths"`
-	Symbol             string   `json:"symbol"`
+	Network            string `json:"network"`
+	Address            string `json:"address"`
 	Plugins            []driver.Plugin
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
@@ -43,7 +40,6 @@ func New(network, addr string) *Config {
 	c := &Config{
 		Network: network,
 		Address: addr,
-		Symbol:  "Plugin",
 	}
 	return c
 }
@@ -65,32 +61,6 @@ func (c *Config) With(opts ...Option) *Config {
 	return c
 }
 
-// LoadPlugins loads driver.Plugins from paths set with config.WithPluginPaths(...)
-func (c *Config) loadPlugins() {
-	for _, p := range c.Paths {
-		plug, err := plugin.Open(p)
-		if err != nil {
-			grpclog.Fatalln(err.Error())
-		}
-		sym, err := plug.Lookup(c.Symbol)
-		if err != nil {
-			grpclog.Fatalln(err.Error())
-		}
-
-		var asPlugin driver.Plugin
-		asPlugin, ok := sym.(driver.Plugin)
-		if !ok {
-			grpclog.Fatalf("provided plugin: %T does not satisfy Plugin interface\n", sym)
-		} else {
-			util.Debugf("registered plugin: %T\n", sym)
-			c.Plugins = append(c.Plugins, asPlugin)
-		}
-	}
-	if len(c.Plugins) == 0 {
-		grpclog.Warningln("No plugins detected. 0 plugins loaded from operating system.")
-	}
-}
-
 func (c *Config) ServerOptions() []grpc.ServerOption {
 	opts := append(
 		[]grpc.ServerOption{
@@ -105,20 +75,16 @@ func (c *Config) ServerOptions() []grpc.ServerOption {
 
 func (c *Config) Debug() string {
 	type cfgLog struct {
-		Network            string   `json:"network"`
-		Address            string   `json:"address"`
-		Symbol             string   `json:"symbol"`
-		Paths              []string `json:"paths"`
-		UnaryInterceptors  int      `json:"unary_interceptors"`
-		StreamInterceptors int      `json:"stream_interceptors"`
-		Options            int      `json:"options"`
-		Plugins            int      `json:"plugins"`
+		Network            string `json:"network"`
+		Address            string `json:"address"`
+		UnaryInterceptors  int    `json:"unary_interceptors"`
+		StreamInterceptors int    `json:"stream_interceptors"`
+		Options            int    `json:"options"`
+		Plugins            int    `json:"plugins"`
 	}
 	logcfg := &cfgLog{
 		Network:            c.Network,
 		Address:            c.Address,
-		Symbol:             c.Symbol,
-		Paths:              c.Paths,
 		UnaryInterceptors:  len(c.UnaryInterceptors),
 		StreamInterceptors: len(c.StreamInterceptors),
 		Options:            len(c.Option),

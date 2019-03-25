@@ -9,10 +9,8 @@
 
 ```go
 type Config struct {
-	Network            string   `json:"network"`
-	Address            string   `json:"address"`
-	Paths              []string `json:"paths"`
-	Symbol             string   `json:"symbol"`
+	Network            string `json:"network"`
+	Address            string `json:"address"`
 	Plugins            []driver.Plugin
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
@@ -108,14 +106,6 @@ func WithHealthz() Option
 WithHealthz exposes server's health and it must be imported to enable support
 for client-side health checks and adds it to plugins. ref:
 https://godoc.org/google.golang.org/grpc/health
-
-#### func  WithLoadedPlugins
-
-```go
-func WithLoadedPlugins(symbol string, paths ...string) Option
-```
-WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
-ref: https://golang.org/pkg/plugin/
 
 #### func  WithMaxConcurrentStreams
 
