@@ -43,10 +43,10 @@ func main() {
 		config.WithHealthz(),                           //adds a healthz service
 
 		//unary middleware:
-		config.WithUnaryUUIDMiddleware(),                                                     //adds a unary uuid middleware
-		config.WithUnaryTraceMiddleware(),                                                    // adds a streaming opentracing middleware
-		config.WithUnaryLoggingMiddleware(),                                                  // adds a unary logging rmiddleware
-		config.WithUnaryRecoveryMiddleware(),                                                 // adds a unary recovery middleware
+		config.WithUnaryUUIDMiddleware(),     //adds a unary uuid middleware
+		config.WithUnaryTraceMiddleware(),    // adds a streaming opentracing middleware
+		config.WithUnaryLoggingMiddleware(),  // adds a unary logging rmiddleware
+		config.WithUnaryRecoveryMiddleware(), // adds a unary recovery middleware
 
 		//streaming middleware
 		config.WithStreamUUIDMiddleware(),     //adds a streaming uuid middleware
@@ -61,18 +61,25 @@ func main() {
 
 /*
 Output:
-INFO: 2019/03/24 18:44:43 registered path: bin/example.so
-INFO: 2019/03/24 18:44:43 registered plugin: *main.Example
-INFO: 2019/03/24 18:44:43 total unary interceptors: 6
-INFO: 2019/03/24 18:44:43 total stream interceptors: 5
-INFO: 2019/03/24 18:44:43 total server options: 3
-INFO: 2019/03/24 18:44:43 creating grpc server
-INFO: 2019/03/24 18:44:43 plugin count: 1
-INFO: 2019/03/24 18:44:43 plugin count: 2
-INFO: 2019/03/24 18:44:43 plugin count: 3
-INFO: 2019/03/24 18:44:43 plugin count: 4
-INFO: 2019/03/24 18:44:43 creating server listener tcp :8080
-INFO: 2019/03/24 18:44:43 gRPC server is starting [::]:8080
+------------------------------------------------
+         #                    #               
+         ##                   ##              
+######## ###  ##   ###### ### ###  ## ########
+         #### ##  ###     ### #### ##         
+ ####### #######  ###  ## ### #######  #######
+ ###     ### ###  ###  ## ### ### ###  ###    
+ ####### ###  ##   ###### ### ###  ##  #######
+               #                    #
+Unary_Interceptors: 4
+Stream_Interceptors: 4
+Server_Options: 1
+Plugins: 4
+Plugin_Paths: [bin/example.so]
+Plugin_Symbol: Plugin
+Network: tcp
+Address: :8080
+------------------------------------------------
+
 
 */
 
@@ -126,11 +133,9 @@ INFO: 2019/03/24 18:44:43 gRPC server is starting [::]:8080
 - [x] Stream logger middleware option
 - [x] Stream recovery middleware option
 - [x] Stream tracing middleware option
+- [x] Unary metrics middleware option
+- [x] Stream metrics middleware option
 
-- [ ] Unary metrics middleware option
-- [ ] Stream metrics middleware option
-
-- [ ] Auth middleware option
 
 ---
 
@@ -158,119 +163,11 @@ func (p PluginFunc) RegisterWithServer(s *grpc.Server) {
 ```
 ---
 
-## Grpc Middlewares
-
-Middlewares should be used for things like monitoring, logging, auth, retry, etc.
-
-They can be added to the engine with:
-
-    config.WithStreamInterceptors(...)
-    config.WithUnaryInterceptors(...)
-
-### Key Functions:
-    type StreamServerInterceptor func(srv interface{}, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error
-    type UnaryServerInterceptor func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (resp interface{}, err error)
-
-### Example(recovery): 
-```go
-// UnaryServerInterceptor returns a new unary server interceptor for panic recovery.
-func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
-	o := evaluateOptions(opts)
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (_ interface{}, err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				err = recoverFrom(ctx, r, o.recoveryHandlerFunc)
-			}
-		}()
-
-		return handler(ctx, req)
-	}
-}
-
-// StreamServerInterceptor returns a new streaming server interceptor for panic recovery.
-func StreamServerInterceptor(opts ...Option) grpc.StreamServerInterceptor {
-	o := evaluateOptions(opts)
-	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				err = recoverFrom(stream.Context(), r, o.recoveryHandlerFunc)
-			}
-		}()
-
-		return handler(srv, stream)
-	}
-}
-```
-Please see [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) for a list of useful
-Unary and Streaming Interceptors
-
----
-
-## GoDoc
-
-#### type Engine
-
-```go
-type Engine interface {
-	With(opts ...config.Option) *Runtime
-	Config() *config.Config
-	Shutdown()
-	Serve() error
-}
-```
-Engine is an interface used to describe a server runtime
-
-
-#### func  New
-
-```go
-func New(network, addr, symbol string, paths ...string) Engine
-```
-New creates a engine intstance.
-
-#### type Runtime
-
-```go
-type Runtime struct {
-}
-```
-
-Runtime is an implementation of the engine API.
-
-#### func (*Runtime) Config
-
-```go
-func (e *Runtime) Config() *config.Config
-```
-Config returns the runtimes current configuration
-
-#### func (*Runtime) Serve
-
-```go
-func (e *Runtime) Serve() error
-```
-Serve starts the runtime gRPC server.
-
-#### func (*Runtime) Shutdown
-
-```go
-func (e *Runtime) Shutdown()
-```
-Shutdown gracefully closes the grpc server.
-
-#### func (*Runtime) With
-
-```go
-func (e *Runtime) With(opts ...config.Option) *Runtime
-```
-With wraps the runtimes config with config options ref:
-github.com/autom8ter/engine/config/options.go
-
----
-
 ## Limitations
 
 Im hoping someone can help explain why some of these errors occur:
 - When creating a plugin, one must NOT use pointer methods when satisfying the driver.Plugin interface
 - If a json config is hard-coded as a string, the server fails, but succeeds if it is present as a config file
+
+---
 

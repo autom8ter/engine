@@ -44,3 +44,41 @@ func NewMultiUnaryServerInterceptor(uints ...grpc.UnaryServerInterceptor) grpc.U
 ```go
 func NewServerStreamWithContext(stream grpc.ServerStream, ctx context.Context) grpc.ServerStream
 ```
+
+#### func  ReadAsCSV
+
+```go
+func ReadAsCSV(val string) ([]string, error)
+```
+
+#### func  Render
+
+```go
+func Render(s string, data interface{}) string
+```
+
+#### func  RenderHTML
+
+```go
+func RenderHTML(s string, data interface{}) string
+```
+
+#### func  ScanAndReplace
+
+```go
+func ScanAndReplace(r io.Reader, replacements ...string) string
+```
+
+#### func  ToPrettyJson
+
+```go
+func ToPrettyJson(obj interface{}) []byte
+```
+ToPrettyJson encodes an item into a pretty (indented) JSON
+
+#### func  ToPrettyJsonString
+
+```go
+func ToPrettyJsonString(obj interface{}) string
+```
+ToPrettyJsonString encodes an item into a pretty (indented) JSON string

@@ -41,6 +41,12 @@ func (c *Config) CreateListener() (net.Listener, error)
 ```
 CreateListener creates a network listener from the network and address config
 
+#### func (*Config) Debug
+
+```go
+func (c *Config) Debug() string
+```
+
 #### func (*Config) ServerOptions
 
 ```go

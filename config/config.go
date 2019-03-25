@@ -50,7 +50,6 @@ func New(network, addr string) *Config {
 
 // CreateListener creates a network listener from the network and address config
 func (c *Config) CreateListener() (net.Listener, error) {
-	util.Debugf("creating server listener %s %s\n", c.Network, c.Address)
 	lis, err := net.Listen(c.Network, c.Address)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to listen %s %s", c.Network, c.Address)
@@ -69,7 +68,6 @@ func (c *Config) With(opts ...Option) *Config {
 // LoadPlugins loads driver.Plugins from paths set with config.WithPluginPaths(...)
 func (c *Config) loadPlugins() {
 	for _, p := range c.Paths {
-		util.Debugf("registered path: %v\n", p)
 		plug, err := plugin.Open(p)
 		if err != nil {
 			grpclog.Fatalln(err.Error())
@@ -102,8 +100,29 @@ func (c *Config) ServerOptions() []grpc.ServerOption {
 
 		c.Option...,
 	)
-	grpclog.Infof("total unary interceptors: %v\n", len(c.UnaryInterceptors))
-	grpclog.Infof("total stream interceptors: %v\n", len(c.StreamInterceptors))
-	grpclog.Infof("total server options: %v\n", len(opts))
 	return opts
+}
+
+func (c *Config) Debug() string {
+	type cfgLog struct {
+		Network            string   `json:"network"`
+		Address            string   `json:"address"`
+		Symbol             string   `json:"symbol"`
+		Paths              []string `json:"paths"`
+		UnaryInterceptors  int      `json:"unary_interceptors"`
+		StreamInterceptors int      `json:"stream_interceptors"`
+		Options            int      `json:"options"`
+		Plugins            int      `json:"plugins"`
+	}
+	logcfg := &cfgLog{
+		Network:            c.Network,
+		Address:            c.Address,
+		Symbol:             c.Symbol,
+		Paths:              c.Paths,
+		UnaryInterceptors:  len(c.UnaryInterceptors),
+		StreamInterceptors: len(c.StreamInterceptors),
+		Options:            len(c.Option),
+		Plugins:            len(c.Plugins),
+	}
+	return util.ToPrettyJsonString(logcfg)
 }

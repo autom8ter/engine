@@ -21,7 +21,7 @@ type Option func(*Config)
 // WithUnaryInterceptors returns an Option that sets unary interceptor(s) for a gRPC server.
 func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
 	return func(c *Config) {
-		util.Debugf("registered: %v unary interceptors", len(c.UnaryInterceptors)+1)
+		util.Debugln("adding unary interceptors")
 		c.UnaryInterceptors = append(c.UnaryInterceptors, interceptors...)
 	}
 }
@@ -29,7 +29,7 @@ func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
 // WithGrpcServerStreamInterceptors returns an Option that sets stream interceptor(s) for a gRPC server.
 func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option {
 	return func(c *Config) {
-		util.Debugf("registered: %v stream interceptors", len(c.StreamInterceptors)+1)
+		util.Debugln("adding unary interceptors")
 		c.StreamInterceptors = append(c.StreamInterceptors, interceptors...)
 	}
 }
@@ -47,6 +47,7 @@ func WithPlugins(symbol string, paths ...string) Option {
 // WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the engine runtime as opposed to go/plugins.
 // See driver.Plugin for the interface definition.
 func WithGoPlugins(svrs ...driver.Plugin) Option {
+	util.Debugln("adding embedded plugins")
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, svrs...)
 		if len(c.Plugins) == 0 {
@@ -101,7 +102,7 @@ func WithMaxConcurrentStreams(num uint32) Option {
 
 // WithChannelz adds grpc server channelz to the list of plugins ref: https://godoc.org/google.golang.org/grpc/channelz/grpc_channelz_v1
 func WithChannelz() Option {
-	util.Debugf("adding grpc channelz")
+	util.Debugln("adding grpc channelz")
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, lib.NewChannelz())
 	}
@@ -109,7 +110,7 @@ func WithChannelz() Option {
 
 // WithReflection adds grpc server reflection to the list of plugins ref: https://godoc.org/google.golang.org/grpc/reflection
 func WithReflection() Option {
-	util.Debugf("adding grpc reflection")
+	util.Debugln("adding grpc reflection")
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, lib.NewReflection())
 	}
@@ -117,55 +118,66 @@ func WithReflection() Option {
 
 // WithHealthz exposes server's health and it must be imported to enable support for client-side health checks and adds it to plugins. ref: https://godoc.org/google.golang.org/grpc/health
 func WithHealthz() Option {
-	util.Debugf("adding grpc healthz")
+	util.Debugln("adding grpc healthz")
 	return func(c *Config) {
 		c.Plugins = append(c.Plugins, lib.NewHealthz())
 	}
 }
 
 func WithUnaryLoggingMiddleware() Option {
+	util.Debugln("adding unary logging middleware")
 	return func(c *Config) {
 		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryLogger())
 	}
 }
 
 func WithStreamLoggingMiddleware() Option {
+	util.Debugln("adding stream logging middleware")
+
 	return func(c *Config) {
 		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamLogger())
 	}
 }
 
 func WithUnaryRecoveryMiddleware() Option {
+	util.Debugln("adding unary recovery middleware")
 	return func(c *Config) {
 		c.UnaryInterceptors = append(c.UnaryInterceptors, grpc_recovery.UnaryServerInterceptor())
 	}
 }
 
 func WithStreamRecoveryMiddleware() Option {
+	util.Debugln("adding stream recovery middleware")
 	return func(c *Config) {
 		c.StreamInterceptors = append(c.StreamInterceptors, grpc_recovery.StreamServerInterceptor())
 	}
 }
 
 func WithUnaryTraceMiddleware() Option {
+	util.Debugln("adding unary tracing middleware")
+
 	return func(c *Config) {
 		c.UnaryInterceptors = append(c.UnaryInterceptors, grpc_opentracing.UnaryServerInterceptor())
 	}
 }
 
 func WithStreamTraceMiddleware() Option {
+	util.Debugln("adding stream tracing middleware")
+
 	return func(c *Config) {
 		c.StreamInterceptors = append(c.StreamInterceptors, grpc_opentracing.StreamServerInterceptor())
 	}
 }
 
 func WithUnaryUUIDMiddleware() Option {
+	util.Debugln("adding unary uuid middleware")
 	return func(c *Config) {
 		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryUUID())
 	}
 }
 
 func WithStreamUUIDMiddleware() Option {
+	util.Debugln("adding stream uuid middleware")
 	return func(c *Config) {
 		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamUUID())
 	}

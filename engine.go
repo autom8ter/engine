@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+	"fmt"
 	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/servers"
 	"github.com/pkg/errors"
@@ -53,6 +54,26 @@ func (e *Runtime) Serve() error {
 	if err != nil {
 		grpclog.Fatalln(err.Error())
 	}
+	fmt.Println(fmt.Sprintf(`
+------------------------------------------------
+         #                    #               
+         ##                   ##              
+######## ###  ##   ###### ### ###  ## ########
+         #### ##  ###     ### #### ##         
+ ####### #######  ###  ## ### #######  #######
+ ###     ### ###  ###  ## ### ### ###  ###    
+ ####### ###  ##   ###### ### ###  ##  #######
+               #                    #
+Unary_Interceptors: %v
+Stream_Interceptors: %v
+Server_Options: %v
+Plugins: %v
+Plugin_Paths: %v
+Plugin_Symbol: %s
+Network: %s
+Address: %s
+------------------------------------------------
+`, len(e.cfg.UnaryInterceptors), len(e.cfg.StreamInterceptors), len(e.cfg.Option), len(e.cfg.Plugins), e.cfg.Paths, e.cfg.Symbol, e.cfg.Network, e.cfg.Address))
 	err = grpcServer.Serve(lis)
 	return errors.WithStack(err)
 }

@@ -1,6 +1,7 @@
 module github.com/autom8ter/engine
 
 require (
+	github.com/Masterminds/sprig v2.18.0+incompatible
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/autom8ter/util v0.0.0-20190315143019-1ab48ff7769b
