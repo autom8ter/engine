@@ -1,14 +1,12 @@
 package config
 
 import (
-	"context"
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/lib"
 	"github.com/autom8ter/engine/util"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"github.com/pkg/errors"
-	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
@@ -170,17 +168,5 @@ func WithUnaryUUIDMiddleware() Option {
 func WithStreamUUIDMiddleware() Option {
 	return func(c *Config) {
 		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamUUID())
-	}
-}
-
-func WithUnaryPingMongoMiddleware(client *mongo.Client, ctx context.Context) Option {
-	return func(c *Config) {
-		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryPingMongoInterceptor(client, ctx))
-	}
-}
-
-func WithUnarySaveToMongoMiddleware(client *mongo.Client, dbName, collectionName string, docKey interface{}) Option {
-	return func(c *Config) {
-		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnarySaveMongoInterceptor(client, dbName, collectionName, docKey))
 	}
 }

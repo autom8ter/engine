@@ -9,6 +9,7 @@ check:	## go format ./..., go vet ./..., go test ./..., go install ./...,
 clean: ## rm bin/* && rm release/*
 	rm bin/* && rm release/*
 
+
 .PHONY: help
 help:	## show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
