@@ -161,9 +161,14 @@ func (p PluginFunc) RegisterWithServer(s *grpc.Server) {
 }
 
 ```
+
+
 ---
 
 ## Limitations
+
+- You may run into problems if you dont use go modules as well as develop your plugins and your engine server in the same repository
+This is because plugins must share the same versions of dependencies as the engine that is loading them.
 
 Im hoping someone can help explain why some of these errors occur:
 - When creating a plugin, one must NOT use pointer methods when satisfying the driver.Plugin interface
