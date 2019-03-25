@@ -87,7 +87,7 @@ func (c *Config) loadPlugins() {
 		}
 	}
 	if len(c.Plugins) == 0 {
-		grpclog.Warningln("No plugins detected. 0 registered plugins.")
+		grpclog.Warningln("No plugins detected. 0 plugins loaded from operating system.")
 	}
 }
 
