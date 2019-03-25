@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/autom8ter/engine"
 	"github.com/autom8ter/engine/config"
+	"github.com/autom8ter/engine/examples/examplepb"
 	"log"
 )
 
@@ -13,10 +14,10 @@ func main() {
 		config.WithMaxConcurrentStreams(1000), //sets max concurrent server streams
 
 		//plugins:
-		config.WithPlugins("Plugin", "bin/example.so"), //loads a plugin with the exported symbol from the specified path
-		config.WithChannelz(),                          //adds a channelz service
-		config.WithReflection(),                        //adds a reflection service
-		config.WithHealthz(),                           //adds a healthz service
+		config.WithChannelz(),   //adds a channelz service
+		config.WithReflection(), //adds a reflection service
+		config.WithHealthz(),    //adds a healthz service
+		config.WithPlugins(examplepb.NewExample()),
 
 		//unary middleware:
 		config.WithUnaryUUIDMiddleware(),     //adds a unary uuid middleware

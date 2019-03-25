@@ -100,15 +100,6 @@ func WithDebug() Option
 WithDebug sets debug to true if not already set in your config or environmental
 variables
 
-#### func  WithGoPlugins
-
-```go
-func WithGoPlugins(svrs ...driver.Plugin) Option
-```
-WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
-engine runtime as opposed to go/plugins. See driver.Plugin for the interface
-definition.
-
 #### func  WithHealthz
 
 ```go
@@ -117,6 +108,14 @@ func WithHealthz() Option
 WithHealthz exposes server's health and it must be imported to enable support
 for client-side health checks and adds it to plugins. ref:
 https://godoc.org/google.golang.org/grpc/health
+
+#### func  WithLoadedPlugins
+
+```go
+func WithLoadedPlugins(symbol string, paths ...string) Option
+```
+WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
+ref: https://golang.org/pkg/plugin/
 
 #### func  WithMaxConcurrentStreams
 
@@ -129,10 +128,11 @@ number of concurrent streams to each ServerTransport.
 #### func  WithPlugins
 
 ```go
-func WithPlugins(symbol string, paths ...string) Option
+func WithPlugins(svrs ...driver.Plugin) Option
 ```
-WithPluginPaths adds relative filepaths to Plugins to add to the engine runtime
-ref: https://golang.org/pkg/plugin/
+WithGoPlugins returns an Option that adds hard-coded Plugins(golang) to the
+engine runtime as opposed to go/plugins. See driver.Plugin for the interface
+definition.
 
 #### func  WithReflection
 

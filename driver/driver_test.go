@@ -2,12 +2,12 @@ package driver_test
 
 import (
 	"github.com/autom8ter/engine/driver"
-	"github.com/autom8ter/engine/examples/examplepb/mock"
+	"github.com/autom8ter/engine/examples/examplepb"
 	"google.golang.org/grpc"
 	"testing"
 )
 
-var ex = mock.NewExample()
+var ex = examplepb.NewExample()
 
 func TestIsPlugin(t *testing.T) {
 	if !driver.IsPlugin(ex) {
