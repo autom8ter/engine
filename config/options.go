@@ -172,3 +172,24 @@ func WithStreamUUIDMiddleware() Option {
 		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamUUID())
 	}
 }
+
+func WithDefaultMiddlewares() Option {
+	util.Debugln("adding default middlewares")
+	return func(c *Config) {
+		util.Debugln("enabling debug mode")
+		if err := os.Setenv("DEBUG", "t"); err != nil {
+			grpclog.Fatalln(err.Error())
+		}
+		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamUUID())
+		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryUUID())
+		c.StreamInterceptors = append(c.StreamInterceptors, grpc_opentracing.StreamServerInterceptor())
+		c.UnaryInterceptors = append(c.UnaryInterceptors, grpc_opentracing.UnaryServerInterceptor())
+		c.StreamInterceptors = append(c.StreamInterceptors, grpc_recovery.StreamServerInterceptor())
+		c.UnaryInterceptors = append(c.UnaryInterceptors, grpc_recovery.UnaryServerInterceptor())
+		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamLogger())
+		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryLogger())
+		c.Plugins = append(c.Plugins, lib.NewReflection())
+		c.Plugins = append(c.Plugins, lib.NewChannelz())
+		c.Plugins = append(c.Plugins, lib.NewHealthz())
+	}
+}
