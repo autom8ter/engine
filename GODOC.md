@@ -5,6 +5,12 @@
 
 ## Usage
 
+#### func  Serve
+
+```go
+func Serve(addr string, debug bool, plugs ...driver.Plugin) error
+```
+
 #### type Engine
 
 ```go
@@ -18,10 +24,17 @@ type Engine interface {
 
 Engine is an interface used to describe a server runtime
 
+#### func  Default
+
+```go
+func Default(network, addr string, debug bool) Engine
+```
+New creates a new engine intstance.
+
 #### func  New
 
 ```go
-func New(network, addr string) Engine
+func New(network, addr string, debug bool) Engine
 ```
 New creates a new engine intstance.
 
@@ -33,6 +46,13 @@ type Runtime struct {
 ```
 
 Runtime is an implementation of the engine API.
+
+#### func  GetRuntime
+
+```go
+func GetRuntime(network, addr string, debug bool) *Runtime
+```
+New creates a new engine intstance.
 
 #### func (*Runtime) Config
 

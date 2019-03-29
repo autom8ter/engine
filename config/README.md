@@ -26,7 +26,7 @@ Config instance. Otherwise, defaults are set.
 #### func  New
 
 ```go
-func New(network, addr string) *Config
+func New(network, addr string, debug bool) *Config
 ```
 New creates a config from your config file. If no config file is present, the
 resulting Config will have the following defaults: netowork: "tcp" address:
@@ -90,13 +90,17 @@ func WithCreds(creds credentials.TransportCredentials) Option
 ```
 WithCreds returns a ServerOption that sets credentials for server connections.
 
-#### func  WithDebug
+#### func  WithDefaultMiddlewares
 
 ```go
-func WithDebug() Option
+func WithDefaultMiddlewares() Option
 ```
-WithDebug sets debug to true if not already set in your config or environmental
-variables
+
+#### func  WithDefaultPlugins
+
+```go
+func WithDefaultPlugins() Option
+```
 
 #### func  WithHealthz
 

@@ -8,9 +8,8 @@ import (
 )
 
 func main() {
-	if err := engine.New("tcp", ":8080").With(
+	if err := engine.New("tcp", ":8080", true).With(
 		//general options:
-		config.WithDebug(),                    //adds verbose logging for development
 		config.WithMaxConcurrentStreams(1000), //sets max concurrent server streams
 
 		//plugins:

@@ -12,7 +12,7 @@ import (
 func main() {
 	c, err := grpc.DialContext(
 		context.TODO(),
-		"localhost:8080",
+		"localhost:3000",
 		grpc.WithInsecure(),
 	)
 	if err != nil {

@@ -21,7 +21,7 @@ func init() {
 }
 
 func TestGRPC(t *testing.T) {
-	var eng = engine.New("tcp", ":3002").With(
+	var eng = engine.New("tcp", ":3002", true).With(
 		config.WithPlugins(examplepb.NewExample()),
 	)
 	go eng.Serve()

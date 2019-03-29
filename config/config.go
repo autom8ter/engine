@@ -31,7 +31,11 @@ type Config struct {
 
 // New creates a config from your config file. If no config file is present, the resulting Config will have the following defaults: netowork: "tcp" address: ":3000"
 // use the With method to continue to modify the resulting Config object
-func New(network, addr string) *Config {
+func New(network, addr string, debug bool) *Config {
+	if debug {
+		_ = os.Setenv("DEBUG", "t")
+		_ = os.Setenv("debug", "t")
+	}
 	if network == "" || addr == "" {
 		util.Debugf("empty network or address detected %s %s, setting defaults: tcp :3000\n", network, addr)
 		network = "tcp"
@@ -87,7 +91,7 @@ func (c *Config) Debug() string {
 		Address:            c.Address,
 		UnaryInterceptors:  len(c.UnaryInterceptors),
 		StreamInterceptors: len(c.StreamInterceptors),
-		Options:            len(c.Option),
+		Options:            len(c.ServerOptions()),
 		Plugins:            len(c.Plugins),
 	}
 	return util.ToPrettyJsonString(logcfg)

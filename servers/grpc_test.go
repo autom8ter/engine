@@ -15,7 +15,7 @@ func init() {
 	}
 }
 
-var c = config.New("tcp", ":3005")
+var c = config.New("tcp", ":3005", true)
 
 func TestGrpcServer_Serve(t *testing.T) {
 	var s = servers.NewGrpcServer(c)

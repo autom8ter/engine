@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/autom8ter/engine/config"
+	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/servers"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/grpclog"
@@ -21,22 +22,27 @@ type Engine interface {
 }
 
 // New creates a new engine intstance.
-func New(network, addr string) Engine {
+func New(network, addr string, debug bool) Engine {
 	return &Runtime{
-		cfg: config.New(network, addr),
+		cfg: config.New(network, addr, debug),
 	}
 }
 
 // New creates a new engine intstance.
 func Default(network, addr string, debug bool) Engine {
 	r := &Runtime{
-		cfg: config.New(network, addr),
-	}
-	if debug {
-		r.With(config.WithDebug())
+		cfg: config.New(network, addr, debug),
 	}
 	r.With(config.WithDefaultPlugins(), config.WithDefaultMiddlewares())
 	return r
+}
+
+// New creates a new engine intstance.
+func GetRuntime(network, addr string, debug bool) *Runtime {
+	return &Runtime{
+		cfg:        config.New(network, addr, debug).With(config.WithDefaultPlugins(), config.WithDefaultMiddlewares()),
+		cancelFunc: nil,
+	}
 }
 
 // Runtime is an implementation of the engine API.
@@ -66,24 +72,7 @@ func (e *Runtime) Serve() error {
 	if err != nil {
 		grpclog.Fatalln(err.Error())
 	}
-	fmt.Println(fmt.Sprintf(`
-------------------------------------------------
-         #                    #               
-         ##                   ##              
-######## ###  ##   ###### ### ###  ## ########
-         #### ##  ###     ### #### ##         
- ####### #######  ###  ## ### #######  #######
- ###     ### ###  ###  ## ### ### ###  ###    
- ####### ###  ##   ###### ### ###  ##  #######
-               #                    #
-Unary_Interceptors: %v
-Stream_Interceptors: %v
-Server_Options: %v
-Plugins: %v
-Network: %s
-Address: %s
-------------------------------------------------
-`, len(e.cfg.UnaryInterceptors), len(e.cfg.StreamInterceptors), len(e.cfg.Option), len(e.cfg.Plugins), e.cfg.Network, e.cfg.Address))
+	fmt.Println(fmt.Sprintln(e.cfg.Debug(), len(e.cfg.UnaryInterceptors), len(e.cfg.StreamInterceptors), len(e.cfg.Option), len(e.cfg.Plugins), e.cfg.Network, e.cfg.Address))
 	err = grpcServer.Serve(lis)
 	return errors.WithStack(err)
 }
@@ -105,4 +94,8 @@ func (e *Runtime) watchShutdownSignal(ctx context.Context) error {
 		// no-op
 	}
 	return nil
+}
+
+func Serve(addr string, debug bool, plugs ...driver.Plugin) error {
+	return New("tcp", addr, debug).With(config.WithDefaultPlugins(), config.WithDefaultMiddlewares(), config.WithPlugins(plugs...)).Serve()
 }
