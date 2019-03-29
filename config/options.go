@@ -174,12 +174,8 @@ func WithStreamUUIDMiddleware() Option {
 }
 
 func WithDefaultMiddlewares() Option {
-	util.Debugln("adding default middlewares")
+	util.Debugln("adding default unary and stream middlewares: uuid, logging, tracing, recovery")
 	return func(c *Config) {
-		util.Debugln("enabling debug mode")
-		if err := os.Setenv("DEBUG", "t"); err != nil {
-			grpclog.Fatalln(err.Error())
-		}
 		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamUUID())
 		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryUUID())
 		c.StreamInterceptors = append(c.StreamInterceptors, grpc_opentracing.StreamServerInterceptor())
@@ -188,8 +184,15 @@ func WithDefaultMiddlewares() Option {
 		c.UnaryInterceptors = append(c.UnaryInterceptors, grpc_recovery.UnaryServerInterceptor())
 		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamLogger())
 		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryLogger())
+	}
+}
+
+func WithDefaultPlugins() Option {
+	util.Debugln("adding default plugins: reflection, channelz, healthz")
+	return func(c *Config) {
 		c.Plugins = append(c.Plugins, lib.NewReflection())
 		c.Plugins = append(c.Plugins, lib.NewChannelz())
 		c.Plugins = append(c.Plugins, lib.NewHealthz())
 	}
 }
+
