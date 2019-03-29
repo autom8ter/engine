@@ -27,6 +27,18 @@ func New(network, addr string) Engine {
 	}
 }
 
+// New creates a new engine intstance.
+func Default(network, addr string, debug bool) Engine {
+	r := &Runtime{
+		cfg: config.New(network, addr),
+	}
+	if debug {
+		r.With(config.WithDebug())
+	}
+	r.With(config.WithDefaultPlugins(), config.WithDefaultMiddlewares())
+	return r
+}
+
 // Runtime is an implementation of the engine API.
 type Runtime struct {
 	cfg        *config.Config

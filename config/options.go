@@ -195,4 +195,3 @@ func WithDefaultPlugins() Option {
 		c.Plugins = append(c.Plugins, lib.NewHealthz())
 	}
 }
-
