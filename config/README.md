@@ -9,9 +9,9 @@
 
 ```go
 type Config struct {
-	Network            string          `json:"network" validate:"required"`
-	Address            string          `json:"address" validate:"required"`
-	Plugins            []driver.Plugin `validate:"required"`
+	Network            string `json:"network" validate:"required"`
+	Address            string `json:"address" validate:"required"`
+	Plugins            []driver.Plugin
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
 	Option             []grpc.ServerOption

@@ -19,9 +19,9 @@ var tool = objectify.New()
 // Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
 // Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
 type Config struct {
-	Network            string          `json:"network" validate:"required"`
-	Address            string          `json:"address" validate:"required"`
-	Plugins            []driver.Plugin `validate:"required"`
+	Network            string `json:"network" validate:"required"`
+	Address            string `json:"address" validate:"required"`
+	Plugins            []driver.Plugin
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
 	Option             []grpc.ServerOption
@@ -43,20 +43,27 @@ func New(network, addr string, debug bool) *Config {
 		Network: network,
 		Address: addr,
 	}
+	tool.PanicIfNil(c)
+	if err := tool.Validate(c); err != nil {
+		panic(errors.New("failed to valid config"))
+	}
 	return c
 }
 
 // CreateListener creates a network listener from the network and address config
 func (c *Config) CreateListener() (net.Listener, error) {
+	tool.PanicIfNil(c)
 	lis, err := net.Listen(c.Network, c.Address)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to listen %s %s", c.Network, c.Address)
 	}
+	tool.PanicIfNil(lis)
 	return lis, nil
 }
 
 // With is used to configure/initialize a Config with custom options
 func (c *Config) With(opts ...Option) *Config {
+	tool.PanicIfNil(c)
 	for _, f := range opts {
 		f(c)
 	}
@@ -64,6 +71,7 @@ func (c *Config) With(opts ...Option) *Config {
 }
 
 func (c *Config) ServerOptions() []grpc.ServerOption {
+	tool.PanicIfNil(c)
 	opts := append(
 		[]grpc.ServerOption{
 			grpc_middleware.WithUnaryServerChain(c.UnaryInterceptors...),

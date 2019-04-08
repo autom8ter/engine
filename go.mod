@@ -1,7 +1,7 @@
 module github.com/autom8ter/engine
 
 require (
-	github.com/autom8ter/objectify v0.0.0-20190408063014-43fcebf67c32
+	github.com/autom8ter/objectify v0.0.0-20190408065719-a9ebead75a53
 	github.com/autom8ter/util v0.0.0-20190315143019-1ab48ff7769b
 	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0

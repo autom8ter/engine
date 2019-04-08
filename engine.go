@@ -58,6 +58,9 @@ func (e *Runtime) Config() *config.Config {
 
 // Serve starts the runtime gRPC server.
 func (e *Runtime) Serve() error {
+	if err := tool.Validate(e); err != nil {
+		return tool.WrapErrf(err, "Method: %s", "engine.Serve")
+	}
 	grpcServer := servers.NewGrpcServer(e.cfg)
 	e.cancelFunc = grpcServer.Shutdown
 	lis, err := e.cfg.CreateListener()
@@ -71,6 +74,9 @@ func (e *Runtime) Serve() error {
 
 // Shutdown gracefully closes the grpc server.
 func (e *Runtime) Shutdown(ctx context.Context) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	_ = tool.WatchForShutdown(ctx, e.cancelFunc)
 }
 

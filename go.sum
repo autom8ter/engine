@@ -13,6 +13,12 @@ github.com/autom8ter/objectify v0.0.0-20190408062430-c1c2ca0a5eae h1:a1yMVCasScZ
 github.com/autom8ter/objectify v0.0.0-20190408062430-c1c2ca0a5eae/go.mod h1:EAzDHsLulh41WBS3lcJgenwdK21Ep+/KqiiGvWC/lCQ=
 github.com/autom8ter/objectify v0.0.0-20190408063014-43fcebf67c32 h1:9z0T4s4dSskcj9CUHjwPNLYkX4aKlOVMSTMmwLY4TKM=
 github.com/autom8ter/objectify v0.0.0-20190408063014-43fcebf67c32/go.mod h1:EAzDHsLulh41WBS3lcJgenwdK21Ep+/KqiiGvWC/lCQ=
+github.com/autom8ter/objectify v0.0.0-20190408064950-98b6423fe1fb h1:1Z0ru3vWeQ67Rb5V2gZqR42w3MOI5rWQg5vQLbn/dJM=
+github.com/autom8ter/objectify v0.0.0-20190408064950-98b6423fe1fb/go.mod h1:EAzDHsLulh41WBS3lcJgenwdK21Ep+/KqiiGvWC/lCQ=
+github.com/autom8ter/objectify v0.0.0-20190408065352-227087814f5d h1:KeeIBeKgJPgrBpNCeMOPVtRcHl2LeBaX14x8OFKghMA=
+github.com/autom8ter/objectify v0.0.0-20190408065352-227087814f5d/go.mod h1:EAzDHsLulh41WBS3lcJgenwdK21Ep+/KqiiGvWC/lCQ=
+github.com/autom8ter/objectify v0.0.0-20190408065719-a9ebead75a53 h1:E5moGP3uNfttemAKoMwjxK2NQG5iNMLSkyWUbArrd+U=
+github.com/autom8ter/objectify v0.0.0-20190408065719-a9ebead75a53/go.mod h1:EAzDHsLulh41WBS3lcJgenwdK21Ep+/KqiiGvWC/lCQ=
 github.com/autom8ter/util v0.0.0-20190315143019-1ab48ff7769b h1:9/xdefJqW1AlO2awvgxCFPnJjg1m8TO5EzdSk/B0oFU=
 github.com/autom8ter/util v0.0.0-20190315143019-1ab48ff7769b/go.mod h1:2h8US+tG3Wg9A68c4Io0aKdc506t3QyphvcRhvp8p1Q=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
