@@ -2,7 +2,6 @@ package lib
 
 import (
 	"context"
-	"github.com/autom8ter/engine/util"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
@@ -36,19 +35,6 @@ func NewUnaryUUID() grpc.UnaryServerInterceptor {
 		ctx = withUUID(ctx, id)
 		return handler(ctx, req)
 
-	}
-}
-
-func NewStreamUUID() grpc.StreamServerInterceptor {
-	id, err := newUUID()
-	if err != nil {
-		grpclog.Warningln(err.Error())
-	}
-	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		ctx := ss.Context()
-		ctx = withUUID(ctx, id)
-		stream := util.NewServerStreamWithContext(ss, ctx)
-		return handler(srv, stream)
 	}
 }
 

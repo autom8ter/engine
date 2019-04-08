@@ -25,7 +25,6 @@ func main() {
 		config.WithUnaryRecoveryMiddleware(), // adds a unary recovery middleware
 
 		//streaming middleware
-		config.WithStreamUUIDMiddleware(),     //adds a streaming uuid middleware
 		config.WithStreamTraceMiddleware(),    // adds a streaming opentracing middleware
 		config.WithStreamLoggingMiddleware(),  //adds a streaming logging middleware
 		config.WithStreamRecoveryMiddleware(), // adds a streaming recovery middleware

@@ -5,25 +5,23 @@ package config
 
 import (
 	"github.com/autom8ter/engine/driver"
-	"github.com/autom8ter/engine/util"
+	"github.com/autom8ter/objectify"
+	"github.com/autom8ter/util"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
 	"net"
 	"os"
 )
 
-func init() {
-	grpclog.SetLoggerV2(grpclog.NewLoggerV2(os.Stdout, os.Stdout, os.Stdout))
-}
+var tool = objectify.New()
 
 // Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
 // Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
 type Config struct {
-	Network            string `json:"network"`
-	Address            string `json:"address"`
-	Plugins            []driver.Plugin
+	Network            string          `json:"network" validate:"required"`
+	Address            string          `json:"address" validate:"required"`
+	Plugins            []driver.Plugin `validate:"required"`
 	UnaryInterceptors  []grpc.UnaryServerInterceptor
 	StreamInterceptors []grpc.StreamServerInterceptor
 	Option             []grpc.ServerOption
@@ -37,7 +35,7 @@ func New(network, addr string, debug bool) *Config {
 		_ = os.Setenv("debug", "t")
 	}
 	if network == "" || addr == "" {
-		util.Debugf("empty network or address detected %s %s, setting defaults: tcp :3000\n", network, addr)
+		tool.Debug("empty network or address detected, setting defaults\n", "tcp", ":3000")
 		network = "tcp"
 		addr = ":3000"
 	}

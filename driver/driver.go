@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
 
@@ -26,6 +27,9 @@ func NewPluginFunc(fn func(s *grpc.Server)) PluginFunc {
 
 // RegisterWithServer registers a Plugin with a grpc server.
 func (p PluginFunc) RegisterWithServer(s *grpc.Server) {
+	if s == nil {
+		panic(errors.New("driver.PluginFunc.RegisterWithServer: nil server detected"))
+	}
 	p(s)
 }
 

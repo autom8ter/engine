@@ -6,12 +6,15 @@ import (
 	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/servers"
+	"github.com/autom8ter/objectify"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/grpclog"
 	"os"
 	"os/signal"
 	"syscall"
 )
+
+var tool = objectify.New()
 
 // Engine is an interface used to describe a server runtime
 type Engine interface {
@@ -47,7 +50,7 @@ func GetRuntime(network, addr string, debug bool) *Runtime {
 
 // Runtime is an implementation of the engine API.
 type Runtime struct {
-	cfg        *config.Config
+	cfg        *config.Config `validate:"required"`
 	cancelFunc func()
 }
 

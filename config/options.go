@@ -133,15 +133,8 @@ func WithUnaryUUIDMiddleware() Option {
 	}
 }
 
-func WithStreamUUIDMiddleware() Option {
-	return func(c *Config) {
-		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamUUID())
-	}
-}
-
 func WithDefaultMiddlewares() Option {
 	return func(c *Config) {
-		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamUUID())
 		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryUUID())
 		c.StreamInterceptors = append(c.StreamInterceptors, grpc_opentracing.StreamServerInterceptor())
 		c.UnaryInterceptors = append(c.UnaryInterceptors, grpc_opentracing.UnaryServerInterceptor())
