@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"github.com/autom8ter/engine/driver"
 	"github.com/autom8ter/engine/lib"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -130,6 +131,12 @@ func WithStreamTraceMiddleware() Option {
 func WithUnaryUUIDMiddleware() Option {
 	return func(c *Config) {
 		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryUUID())
+	}
+}
+
+func WithAuthUnaryMiddleware(fn func(ctx context.Context) (context.Context, error)) Option {
+	return func(c *Config) {
+		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.UnaryAuthInterceptor(fn))
 	}
 }
 
