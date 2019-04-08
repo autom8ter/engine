@@ -9,9 +9,6 @@ import (
 	"github.com/autom8ter/objectify"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/grpclog"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 var tool = objectify.New()
@@ -20,7 +17,7 @@ var tool = objectify.New()
 type Engine interface {
 	With(opts ...config.Option) *Runtime
 	Config() *config.Config
-	Shutdown()
+	Shutdown(ctx context.Context)
 	Serve() error
 }
 
@@ -38,14 +35,6 @@ func Default(network, addr string, debug bool) Engine {
 	}
 	r.With(config.WithDefaultPlugins(), config.WithDefaultMiddlewares())
 	return r
-}
-
-// New creates a new engine intstance.
-func GetRuntime(network, addr string, debug bool) *Runtime {
-	return &Runtime{
-		cfg:        config.New(network, addr, debug).With(config.WithDefaultPlugins(), config.WithDefaultMiddlewares()),
-		cancelFunc: nil,
-	}
 }
 
 // Runtime is an implementation of the engine API.
@@ -81,22 +70,8 @@ func (e *Runtime) Serve() error {
 }
 
 // Shutdown gracefully closes the grpc server.
-func (e *Runtime) Shutdown() {
-	e.cancelFunc()
-}
-
-func (e *Runtime) watchShutdownSignal(ctx context.Context) error {
-	sdCh := make(chan os.Signal, 1)
-	defer close(sdCh)
-	defer signal.Stop(sdCh)
-	signal.Notify(sdCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	select {
-	case <-sdCh:
-		e.Shutdown()
-	case <-ctx.Done():
-		// no-op
-	}
-	return nil
+func (e *Runtime) Shutdown(ctx context.Context) {
+	_ = tool.WatchForShutdown(ctx, e.cancelFunc)
 }
 
 func Serve(addr string, debug bool, plugs ...driver.Plugin) error {

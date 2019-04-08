@@ -17,7 +17,7 @@ func Serve(addr string, debug bool, plugs ...driver.Plugin) error
 type Engine interface {
 	With(opts ...config.Option) *Runtime
 	Config() *config.Config
-	Shutdown()
+	Shutdown(ctx context.Context)
 	Serve() error
 }
 ```
@@ -47,13 +47,6 @@ type Runtime struct {
 
 Runtime is an implementation of the engine API.
 
-#### func  GetRuntime
-
-```go
-func GetRuntime(network, addr string, debug bool) *Runtime
-```
-New creates a new engine intstance.
-
 #### func (*Runtime) Config
 
 ```go
@@ -71,7 +64,7 @@ Serve starts the runtime gRPC server.
 #### func (*Runtime) Shutdown
 
 ```go
-func (e *Runtime) Shutdown()
+func (e *Runtime) Shutdown(ctx context.Context)
 ```
 Shutdown gracefully closes the grpc server.
 

@@ -170,12 +170,6 @@ func WithStreamRecoveryMiddleware() Option
 func WithStreamTraceMiddleware() Option
 ```
 
-#### func  WithStreamUUIDMiddleware
-
-```go
-func WithStreamUUIDMiddleware() Option
-```
-
 #### func  WithUnaryInterceptors
 
 ```go
