@@ -1,5 +1,7 @@
 # Engine
 
+[Godoc](https://github.com/autom8ter/engine/blob/master/GODOC.md)
+
 A Pluggable gRPC Microservice Framework
                
 `go get github.com/autom8ter/engine`
