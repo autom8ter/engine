@@ -6,6 +6,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/grpc-ecosystem/grpc-gateway v1.8.5
+	github.com/juju/ratelimit v1.0.1
 	github.com/opentracing/opentracing-go v1.1.0 // indirect
 	github.com/pkg/errors v0.8.1
 	golang.org/x/net v0.0.0-20190324223953-e3b2ff56ed87 // indirect

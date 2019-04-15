@@ -140,6 +140,18 @@ func WithAuthUnaryMiddleware(fn func(ctx context.Context) (context.Context, erro
 	}
 }
 
+func WithUnaryRateLimitMiddleware(waitDur time.Duration) Option {
+	return func(c *Config) {
+		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryRateLimiter(lib.WithMaxWaitDuration(waitDur)))
+	}
+}
+
+func WithStreamRateLimitMiddleware(waitDur time.Duration) Option {
+	return func(c *Config) {
+		c.StreamInterceptors = append(c.StreamInterceptors, lib.NewStreamRateLimiter(lib.WithMaxWaitDuration(waitDur)))
+	}
+}
+
 func WithDefaultMiddlewares() Option {
 	return func(c *Config) {
 		c.UnaryInterceptors = append(c.UnaryInterceptors, lib.NewUnaryUUID())
