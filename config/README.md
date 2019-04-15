@@ -66,6 +66,12 @@ type Option func(*Config)
 
 Option configures a gRPC and a gateway server.
 
+#### func  WithAuthUnaryMiddleware
+
+```go
+func WithAuthUnaryMiddleware(fn func(ctx context.Context) (context.Context, error)) Option
+```
+
 #### func  WithChannelz
 
 ```go
@@ -158,6 +164,12 @@ interceptor(s) for a gRPC server.
 func WithStreamLoggingMiddleware() Option
 ```
 
+#### func  WithStreamRateLimitMiddleware
+
+```go
+func WithStreamRateLimitMiddleware(waitDur time.Duration) Option
+```
+
 #### func  WithStreamRecoveryMiddleware
 
 ```go
@@ -182,6 +194,12 @@ gRPC server.
 
 ```go
 func WithUnaryLoggingMiddleware() Option
+```
+
+#### func  WithUnaryRateLimitMiddleware
+
+```go
+func WithUnaryRateLimitMiddleware(waitDur time.Duration) Option
 ```
 
 #### func  WithUnaryRecoveryMiddleware
