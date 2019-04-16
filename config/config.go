@@ -35,7 +35,7 @@ func New(network, addr string, debug bool) *Config {
 		_ = os.Setenv("debug", "t")
 	}
 	if network == "" || addr == "" {
-		tool.Debug("empty network or address detected, setting defaults\n", "tcp", ":3000")
+		tool.Entry().Debugln("empty network or address detected, setting defaults\n", "tcp :3000")
 		network = "tcp"
 		addr = ":3000"
 	}
