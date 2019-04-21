@@ -6,8 +6,6 @@ A Pluggable gRPC Microservice Framework
                
 `go get github.com/autom8ter/engine`
 
-Contributers: Coleman Word
-
 License: MIT
 
 ```go
@@ -57,6 +55,10 @@ func main() {
 }
 
 ```
+
+The above engine configuration(minus the example service) can be created with:
+
+    engine.Default(network, addr string, debug bool).With(config.WithPlugins(...add plugins here))
 
 ---
 

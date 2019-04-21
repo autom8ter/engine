@@ -10,6 +10,7 @@
 ```go
 func Serve(addr string, debug bool, plugs ...driver.Plugin) error
 ```
+Serve creates starts a gRPC server without the need to create an engine instance
 
 #### type Engine
 
