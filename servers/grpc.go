@@ -9,7 +9,7 @@ import (
 	"net"
 )
 
-var tool = objectify.New()
+var tool = objectify.Default()
 
 // GrpcServer wraps grpc.Server setup process.
 type GrpcServer struct {

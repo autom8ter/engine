@@ -14,7 +14,7 @@ import (
 	"os"
 )
 
-var tool = objectify.New()
+var tool = objectify.Default()
 
 // Config contains configurations of gRPC and Gateway server. A new instance of Config is created from your config.yaml|config.json file in your current working directory
 // Network, Address, and Paths can be set in your config file to set the Config instance. Otherwise, defaults are set.
@@ -35,7 +35,7 @@ func New(network, addr string, debug bool) *Config {
 		_ = os.Setenv("debug", "t")
 	}
 	if network == "" || addr == "" {
-		tool.Entry().Debugln("empty network or address detected, setting defaults\n", "tcp :3000")
+		tool.Debugf("empty network or address detected, setting defaults %s", "tcp :3000")
 		network = "tcp"
 		addr = ":3000"
 	}

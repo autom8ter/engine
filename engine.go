@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 )
 
-var tool = objectify.New()
+var tool = objectify.Default()
 
 // Engine is an interface used to describe a server runtime
 type Engine interface {
