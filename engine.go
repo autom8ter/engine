@@ -16,6 +16,7 @@ var tool = objectify.Default()
 
 // Engine is an interface used to describe a server runtime
 type Engine interface {
+	Proxy(server *http.Server) error
 	With(opts ...config.Option) *Runtime
 	Config() *config.Config
 	Shutdown(ctx context.Context)
