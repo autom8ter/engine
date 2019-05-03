@@ -2,13 +2,14 @@ package engine
 
 import (
 	"context"
-	"fmt"
 	"github.com/autom8ter/engine/config"
 	"github.com/autom8ter/engine/driver"
+	"github.com/autom8ter/engine/lis"
 	"github.com/autom8ter/engine/servers"
 	"github.com/autom8ter/objectify"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/grpclog"
+	"net/http"
 )
 
 var tool = objectify.Default()
@@ -23,8 +24,14 @@ type Engine interface {
 
 // New creates a new engine intstance.
 func New(network, addr string, debug bool) Engine {
+	cfg := config.New(network, addr, debug)
+	l, err := cfg.CreateListener()
+	if err != nil {
+		grpclog.Fatalln(err.Error())
+	}
 	return &Runtime{
-		cfg: config.New(network, addr, debug),
+		cfg: cfg,
+		lis: l,
 	}
 }
 
@@ -39,8 +46,9 @@ func Default(network, addr string, debug bool) Engine {
 
 // Runtime is an implementation of the engine API.
 type Runtime struct {
+	lis        *lis.Listener
 	cfg        *config.Config `validate:"required"`
-	cancelFunc func()
+	cancelFunc []func()
 }
 
 // With wraps the runtimes config with config options
@@ -62,14 +70,19 @@ func (e *Runtime) Serve() error {
 		return tool.WrapErrf(err, "Method: %s", "engine.Serve")
 	}
 	grpcServer := servers.NewGrpcServer(e.cfg)
-	e.cancelFunc = grpcServer.Shutdown
-	lis, err := e.cfg.CreateListener()
-	if err != nil {
-		grpclog.Fatalln(err.Error())
-	}
-	fmt.Println(fmt.Sprintln(e.cfg.Debug(), len(e.cfg.UnaryInterceptors), len(e.cfg.StreamInterceptors), len(e.cfg.Option), len(e.cfg.Plugins), e.cfg.Network, e.cfg.Address))
-	err = grpcServer.Serve(lis)
-	return errors.WithStack(err)
+	e.cancelFunc = append(e.cancelFunc, grpcServer.Shutdown)
+	return errors.WithStack(grpcServer.Serve(e.lis.GRPCListener()))
+}
+
+// Serve starts the runtime gRPC server.
+func (e *Runtime) Proxy(server *http.Server) error {
+	e.cancelFunc = append(e.cancelFunc, func() {
+		if err := server.Shutdown(context.TODO()); err != nil {
+			grpclog.Infoln(err.Error())
+		}
+	})
+
+	return errors.WithStack(server.Serve(e.lis.HTTPListener()))
 }
 
 // Shutdown gracefully closes the grpc server.
@@ -77,7 +90,11 @@ func (e *Runtime) Shutdown(ctx context.Context) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	_ = tool.WatchForShutdown(ctx, e.cancelFunc)
+	_ = tool.WatchForShutdown(ctx, func() {
+		for _, c := range e.cancelFunc {
+			c()
+		}
+	})
 }
 
 //Serve creates starts a gRPC server without the need to create an engine instance

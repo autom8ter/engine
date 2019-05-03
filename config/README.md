@@ -35,7 +35,7 @@ resulting Config will have the following defaults: netowork: "tcp" address:
 #### func (*Config) CreateListener
 
 ```go
-func (c *Config) CreateListener() (net.Listener, error)
+func (c *Config) CreateListener() (*lis.Listener, error)
 ```
 CreateListener creates a network listener from the network and address config
 

@@ -5,6 +5,7 @@ package config
 
 import (
 	"github.com/autom8ter/engine/driver"
+	"github.com/autom8ter/engine/lis"
 	"github.com/autom8ter/objectify"
 	"github.com/autom8ter/util"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -51,14 +52,14 @@ func New(network, addr string, debug bool) *Config {
 }
 
 // CreateListener creates a network listener from the network and address config
-func (c *Config) CreateListener() (net.Listener, error) {
+func (c *Config) CreateListener() (*lis.Listener, error) {
 	tool.PanicIfNil(c)
-	lis, err := net.Listen(c.Network, c.Address)
+	l, err := net.Listen(c.Network, c.Address)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to listen %s %s", c.Network, c.Address)
 	}
-	tool.PanicIfNil(lis)
-	return lis, nil
+	tool.PanicIfNil(l)
+	return lis.NewListner(l), nil
 }
 
 // With is used to configure/initialize a Config with custom options

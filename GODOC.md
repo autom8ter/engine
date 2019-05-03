@@ -55,6 +55,13 @@ func (e *Runtime) Config() *config.Config
 ```
 Config returns the runtimes current configuration
 
+#### func (*Runtime) Proxy
+
+```go
+func (e *Runtime) Proxy(server http.Server) error
+```
+Serve starts the runtime gRPC server.
+
 #### func (*Runtime) Serve
 
 ```go
